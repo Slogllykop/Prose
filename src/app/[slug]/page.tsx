@@ -10,6 +10,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BackToTop } from "@/components/back-to-top";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { getAllBlogSlugs, getBlogBySlug } from "@/lib/blog";
 import {
@@ -148,15 +149,14 @@ export default async function BlogPage(props: {
                 </div>
             </article>
 
-            <div className="mt-12 border-border border-t pt-6">
-                <Link
-                    href="/"
-                    className="inline-flex items-center gap-1.5 text-muted-foreground text-sm transition-colors hover:text-foreground"
-                >
-                    <IconArrowLeft className="size-4" />
-                    View all posts
-                </Link>
-            </div>
+            <footer className="mt-16">
+                <div className="flex items-center justify-between border-border border-t py-8 text-muted-foreground text-sm">
+                    <p>
+                        © {new Date().getFullYear()} {AUTHOR_NAME}
+                    </p>
+                    <BackToTop />
+                </div>
+            </footer>
         </main>
     );
 }
