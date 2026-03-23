@@ -143,7 +143,7 @@ export default async function BlogPage(props: {
                     </div>
                 )}
 
-                <div className="prose prose-zinc dark:prose-invert max-w-none prose-pre:bg-transparent prose-pre:p-0 prose-headings:font-semibold prose-headings:tracking-tight prose-a:underline prose-a:underline-offset-4">
+                <div className="prose prose-zinc dark:prose-invert max-w-none prose-pre:bg-muted prose-pre:p-0 prose-headings:font-semibold prose-headings:tracking-tight prose-a:underline prose-a:underline-offset-4">
                     <MdxContent />
                 </div>
             </article>

@@ -140,16 +140,23 @@
 
 /* Syntax highlighting - @shikijs/rehype */
 .shiki {
-    @apply overflow-x-auto rounded-lg border border-border px-4 py-4 text-sm leading-relaxed;
+    @apply overflow-x-auto rounded-lg border border-border bg-muted px-4 py-4 text-sm leading-relaxed;
+}
+
+.shiki,
+.shiki span {
+    color: var(--shiki-light, inherit);
+    font-style: var(--shiki-light-font-style, inherit);
+    font-weight: var(--shiki-light-font-weight, inherit);
+    text-decoration: var(--shiki-light-text-decoration, inherit);
 }
 
 .dark .shiki,
 .dark .shiki span {
-    color: var(--shiki-dark);
-    background-color: var(--shiki-dark-bg);
-    font-style: var(--shiki-dark-font-style);
-    font-weight: var(--shiki-dark-font-weight);
-    text-decoration: var(--shiki-dark-text-decoration);
+    color: var(--shiki-dark, inherit);
+    font-style: var(--shiki-dark-font-style, inherit);
+    font-weight: var(--shiki-dark-font-weight, inherit);
+    text-decoration: var(--shiki-dark-text-decoration, inherit);
 }
 
 .shiki code {

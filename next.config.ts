@@ -20,7 +20,10 @@ const withMDX = createMDX({
         rehypePlugins: [
             [
                 "@shikijs/rehype",
-                { themes: { dark: "github-dark", light: "github-light" } },
+                {
+                    themes: { dark: "github-dark", light: "github-light" },
+                    defaultColor: false,
+                },
             ],
         ],
     },
