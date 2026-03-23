@@ -32,14 +32,17 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
             if (headingElements.length === 0) return;
 
             const scrollY = window.scrollY;
-            const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+            const maxScroll = Math.max(
+                0,
+                document.documentElement.scrollHeight - window.innerHeight,
+            );
             const scrollProgress = maxScroll > 0 ? scrollY / maxScroll : 0;
-            
+
             // The scan line dynamically moves from the top 20% to the bottom 100% of the window.
-            // This ensures all sections get highlighted sequentially as the user scrolls, 
+            // This ensures all sections get highlighted sequentially as the user scrolls,
             // especially the last sections when there is no more scroll space.
-            const scanLineY = window.innerHeight * (0.2 + (scrollProgress * 0.8));
-            
+            const scanLineY = window.innerHeight * (0.2 + scrollProgress * 0.8);
+
             let active = headingElements[0]?.id || "";
             for (const el of headingElements) {
                 const rect = el.getBoundingClientRect();
@@ -47,7 +50,7 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
                     active = el.id;
                 }
             }
-            
+
             setActiveId(active);
         };
 
@@ -62,7 +65,7 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
 
     return (
         <div className="space-y-4">
-            <p className="font-semibold text-foreground text-sm tracking-tight">
+            <p className="font-semibold text-foreground text-xl tracking-tight">
                 On this page
             </p>
             <ul className="space-y-2.5 text-sm md:space-y-2">
@@ -74,12 +77,31 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
                             heading.level === 3 ? "pl-4" : "",
                             heading.level > 3 ? "pl-8" : "",
                             activeId === heading.slug
-                                ? "font-medium text-foreground"
+                                ? "text-foreground"
                                 : "text-muted-foreground",
                         )}
                     >
-                        <Link href={`#${heading.slug}`} className="block">
-                            {heading.text}
+                        <Link
+                            href={`#${heading.slug}`}
+                            className="group flex flex-col"
+                        >
+                            <span
+                                className={cn(
+                                    "transition-all",
+                                    activeId === heading.slug
+                                        ? "font-medium"
+                                        : "font-normal",
+                                )}
+                            >
+                                {heading.text}
+                            </span>
+                            {/* Invisible bold placeholder to reserve space and prevent layout shift */}
+                            <span
+                                className="pointer-events-none invisible block h-0 select-none font-medium"
+                                aria-hidden="true"
+                            >
+                                {heading.text}
+                            </span>
                         </Link>
                     </li>
                 ))}
