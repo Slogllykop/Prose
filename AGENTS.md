@@ -4,7 +4,7 @@
 - Frontend: Next.js 16 (App Router), React 19, TypeScript
 - Styling: Tailwind v4, `@tailwindcss/typography`
 - Components: Shadcn UI (radix-mira style), Tabler Icons
-- Content: MDX (`@next/mdx`), `gray-matter`, `@shikijs/rehype`, `remark-gfm`, `remark-frontmatter`
+- Content: MDX (`@next/mdx`), `gray-matter`, `rehype-slug`, `@shikijs/rehype`, `remark-gfm`, `remark-frontmatter`
 - DX: Biomejs for linting/formatting
 
 **Architecture & Conventions:**
