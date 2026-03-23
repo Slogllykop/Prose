@@ -24,26 +24,38 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
             }
         }
 
-        // Setup Intersection Observer for active heading
-        const observer = new IntersectionObserver(
-            (entries) => {
-                for (const entry of entries) {
-                    if (entry.isIntersecting) {
-                        setActiveId(entry.target.id);
-                    }
+        const handleScroll = () => {
+            const headingElements = headings
+                .map((h) => document.getElementById(h.slug))
+                .filter((el): el is HTMLElement => el !== null);
+
+            if (headingElements.length === 0) return;
+
+            const scrollY = window.scrollY;
+            const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+            const scrollProgress = maxScroll > 0 ? scrollY / maxScroll : 0;
+            
+            // The scan line dynamically moves from the top 20% to the bottom 100% of the window.
+            // This ensures all sections get highlighted sequentially as the user scrolls, 
+            // especially the last sections when there is no more scroll space.
+            const scanLineY = window.innerHeight * (0.2 + (scrollProgress * 0.8));
+            
+            let active = headingElements[0]?.id || "";
+            for (const el of headingElements) {
+                const rect = el.getBoundingClientRect();
+                if (rect.top <= scanLineY) {
+                    active = el.id;
                 }
-            },
-            { rootMargin: "0px 0px -80% 0px" },
-        );
-
-        for (const heading of headings) {
-            const element = document.getElementById(heading.slug);
-            if (element) {
-                observer.observe(element);
             }
-        }
+            
+            setActiveId(active);
+        };
 
-        return () => observer.disconnect();
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        // Initial check
+        handleScroll();
+
+        return () => window.removeEventListener("scroll", handleScroll);
     }, [headings]);
 
     if (!headings?.length) return null;
