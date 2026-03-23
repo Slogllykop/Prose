@@ -39,7 +39,7 @@ export default function Home() {
                             {AUTHOR_NAME}
                         </h1>
                         <p className="text-muted-foreground text-sm">
-                            Personal Blog
+                            Building, designing, and sharing the journey.
                         </p>
                     </div>
                 </Link>
