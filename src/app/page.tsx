@@ -1,57 +1,82 @@
-import { IconPencil } from "@tabler/icons-react";
+import { IconArticle } from "@tabler/icons-react";
+import Image from "next/image";
 import Link from "next/link";
 import { BlogCard } from "@/components/blog-card";
 import { ThemeToggle } from "@/components/theme-toggle";
+import {
+    Empty,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from "@/components/ui/empty";
 import { getAllBlogs } from "@/lib/blog";
-import { SITE_DESCRIPTION, SITE_TITLE } from "@/lib/constants";
+import { AUTHOR_IMAGE, AUTHOR_NAME, AUTHOR_URL } from "@/lib/constants";
 
 export default function Home() {
     const blogs = getAllBlogs();
 
     return (
         <main className="mx-auto w-full max-w-2xl px-4 py-12">
-            <header className="mb-10 flex items-start justify-between">
-                <div>
-                    <h1 className="font-bold text-3xl tracking-tight">
-                        {SITE_TITLE}
-                    </h1>
-                    <p className="mt-1 text-muted-foreground text-sm">
-                        {SITE_DESCRIPTION}
-                    </p>
-                </div>
+            <header className="mb-12 flex items-center justify-between">
+                <Link
+                    href={AUTHOR_URL}
+                    target="_blank"
+                    className="flex items-center gap-4 transition-opacity hover:opacity-80"
+                >
+                    <div className="relative size-12 overflow-hidden rounded-full border bg-muted">
+                        <Image
+                            src={AUTHOR_IMAGE}
+                            alt={AUTHOR_NAME}
+                            fill
+                            className="object-cover"
+                            sizes="48px"
+                            priority
+                        />
+                    </div>
+                    <div>
+                        <h1 className="font-semibold text-lg tracking-tight">
+                            {AUTHOR_NAME}
+                        </h1>
+                        <p className="text-muted-foreground text-sm">
+                            Personal Blog
+                        </p>
+                    </div>
+                </Link>
                 <ThemeToggle />
             </header>
 
             {blogs.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 text-center">
-                    <IconPencil className="mb-4 size-10 text-muted-foreground" />
-                    <p className="font-medium text-lg text-muted-foreground">
-                        No posts yet
-                    </p>
-                    <p className="mt-1 text-muted-foreground text-sm">
-                        Add an MDX file to{" "}
-                        <code className="text-xs">src/blogs/</code> to get
-                        started.
-                    </p>
-                </div>
+                <Empty className="min-h-[400px] border-2">
+                    <EmptyHeader>
+                        <EmptyMedia
+                            variant="icon"
+                            className="size-10 [&_svg]:size-8"
+                        >
+                            <IconArticle />
+                        </EmptyMedia>
+                        <EmptyTitle className="text-xl">
+                            No posts published
+                        </EmptyTitle>
+                        <EmptyDescription className="text-sm">
+                            {AUTHOR_NAME} hasn't published any posts yet. Check
+                            back later for new content.
+                        </EmptyDescription>
+                    </EmptyHeader>
+                </Empty>
             ) : (
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-4">
                     {blogs.map((blog) => (
                         <BlogCard key={blog.slug} blog={blog} />
                     ))}
                 </div>
             )}
 
-            <footer className="mt-16 border-border border-t pt-6 text-center text-muted-foreground text-xs">
-                Built with{" "}
-                <Link
-                    href="https://nextjs.org"
-                    target="_blank"
-                    className="underline"
-                >
-                    Next.js
-                </Link>{" "}
-                &amp; MDX
+            <footer className="mt-10 flex items-center justify-center border-border border-t pt-8 text-muted-foreground text-sm">
+                <p>
+                    &copy; {new Date().getFullYear()} {AUTHOR_NAME}. All rights
+                    reserved.
+                </p>
             </footer>
         </main>
     );
