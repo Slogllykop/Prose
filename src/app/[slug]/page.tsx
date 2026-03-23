@@ -138,7 +138,7 @@ export default async function BlogPage(props: {
                     {hasHero && (
                         <div className="mb-8 overflow-hidden rounded-lg border border-border">
                             <Image
-                                src={`/blog-assets/${slug}/${blog.heroImage}`}
+                                src={`/api/v1/blog-assets/${slug}/${blog.heroImage}`}
                                 alt={`Hero image for ${blog.title}`}
                                 width={1200}
                                 height={630}
