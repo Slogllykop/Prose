@@ -16,6 +16,7 @@
 - MDX components (headings, pre/code with copy button) are customized in `src/mdx-components.tsx`.
 - The `src/blogs/example` post is excluded from search engine indexing and the main blog listing. It is built for formatting reference (`/example`).
 - Images in `src/blogs/` are served dynamically at runtime via the `src/app/api/v1/blog-assets/[...path]/route.ts` API route.
+- A global blog data feed is available via the `src/app/api/v1/get-blogs/route.ts` API route (supports CORS and caching).
 - Use `pnpm run format` (via biome) to sort Tailwind classes before committing.
 
 **Adding a New Post:**
