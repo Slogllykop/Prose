@@ -18,6 +18,7 @@ const withMDX = createMDX({
             "remark-mdx-frontmatter",
         ],
         rehypePlugins: [
+            "rehype-slug",
             [
                 "@shikijs/rehype",
                 {

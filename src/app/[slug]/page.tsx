@@ -11,6 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BackToTop } from "@/components/back-to-top";
+import { TableOfContents } from "@/components/mdx-toc";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { getAllBlogSlugs, getBlogBySlug } from "@/lib/blog";
 import {
@@ -76,8 +77,8 @@ export default async function BlogPage(props: {
     const hasHero = heroPath && fs.existsSync(heroPath);
 
     return (
-        <main className="mx-auto w-full max-w-2xl px-4 py-12">
-            <header className="mb-8 flex items-center justify-between">
+        <main className="mx-auto w-full max-w-7xl px-4 py-12">
+            <header className="mx-auto mb-12 flex max-w-2xl items-center justify-between">
                 <Link
                     href="/"
                     className="inline-flex items-center gap-1.5 text-muted-foreground text-sm transition-colors hover:text-foreground"
@@ -88,68 +89,77 @@ export default async function BlogPage(props: {
                 <ThemeToggle />
             </header>
 
-            <article>
-                <div className="mb-6">
-                    <h1 className="font-bold text-3xl tracking-tight">
-                        {blog.title}
-                    </h1>
+            <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_minmax(0,672px)_1fr]">
+                <div className="hidden lg:block" />{" "}
+                {/* Left Spacer to center the article */}
+                <article className="w-full">
+                    <div className="mb-6">
+                        <h1 className="font-bold text-3xl tracking-tight">
+                            {blog.title}
+                        </h1>
 
-                    <div className="mt-4 flex items-center gap-3">
-                        <Image
-                            src={AUTHOR_IMAGE}
-                            alt={AUTHOR_NAME}
-                            width={36}
-                            height={36}
-                            className="rounded-full"
-                        />
-                        <div className="flex flex-col">
-                            <Link
-                                href={AUTHOR_URL}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="font-medium text-foreground text-sm hover:underline"
-                            >
-                                {AUTHOR_NAME}
-                            </Link>
-                            <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-muted-foreground text-xs">
-                                <span className="inline-flex items-center gap-1">
-                                    <IconCalendar className="size-3" />
-                                    {uploadDate}
-                                </span>
-                                {uploadDate !== updateDate && (
+                        <div className="mt-4 flex items-center gap-3">
+                            <Image
+                                src={AUTHOR_IMAGE}
+                                alt={AUTHOR_NAME}
+                                width={36}
+                                height={36}
+                                className="rounded-full"
+                            />
+                            <div className="flex flex-col">
+                                <Link
+                                    href={AUTHOR_URL}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="font-medium text-foreground text-sm hover:underline"
+                                >
+                                    {AUTHOR_NAME}
+                                </Link>
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-muted-foreground text-xs">
                                     <span className="inline-flex items-center gap-1">
-                                        <IconRefresh className="size-3" />
-                                        {updateDate}
+                                        <IconCalendar className="size-3" />
+                                        {uploadDate}
                                     </span>
-                                )}
-                                <span className="inline-flex items-center gap-1">
-                                    <IconClock className="size-3" />
-                                    {blog.readingTime} min read
-                                </span>
+                                    {uploadDate !== updateDate && (
+                                        <span className="inline-flex items-center gap-1">
+                                            <IconRefresh className="size-3" />
+                                            {updateDate}
+                                        </span>
+                                    )}
+                                    <span className="inline-flex items-center gap-1">
+                                        <IconClock className="size-3" />
+                                        {blog.readingTime} min read
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {hasHero && (
-                    <div className="mb-8 overflow-hidden rounded-lg border border-border">
-                        <Image
-                            src={`/blog-assets/${slug}/${blog.heroImage}`}
-                            alt={`Hero image for ${blog.title}`}
-                            width={1200}
-                            height={630}
-                            className="aspect-16/7 w-full object-cover"
-                            priority
-                        />
+                    {hasHero && (
+                        <div className="mb-8 overflow-hidden rounded-lg border border-border">
+                            <Image
+                                src={`/blog-assets/${slug}/${blog.heroImage}`}
+                                alt={`Hero image for ${blog.title}`}
+                                width={1200}
+                                height={630}
+                                className="aspect-16/7 w-full object-cover"
+                                priority
+                            />
+                        </div>
+                    )}
+
+                    <div className="prose prose-zinc dark:prose-invert max-w-none prose-pre:bg-muted prose-pre:p-0 prose-li:text-justify prose-p:text-justify prose-headings:font-semibold prose-headings:tracking-tight prose-a:underline prose-a:underline-offset-4">
+                        <MdxContent />
                     </div>
-                )}
+                </article>
+                <aside className="sticky top-24 hidden h-fit lg:block">
+                    <div className="w-[250px]">
+                        <TableOfContents headings={blog.headings} />
+                    </div>
+                </aside>
+            </div>
 
-                <div className="prose prose-zinc dark:prose-invert max-w-none prose-pre:bg-muted prose-pre:p-0 prose-headings:font-semibold prose-headings:tracking-tight prose-a:underline prose-a:underline-offset-4">
-                    <MdxContent />
-                </div>
-            </article>
-
-            <footer className="mt-16">
+            <footer className="mx-auto mt-16 max-w-2xl">
                 <div className="flex items-center justify-between border-border border-t py-8 text-muted-foreground text-sm">
                     <p>
                         © {new Date().getFullYear()} {AUTHOR_NAME}

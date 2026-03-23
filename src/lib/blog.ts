@@ -1,9 +1,16 @@
 import fs from "node:fs";
 import path from "node:path";
+import GithubSlugger from "github-slugger";
 import matter from "gray-matter";
 import { EXAMPLE_SLUG, WORDS_PER_MINUTE } from "./constants";
 
 const BLOGS_DIR = path.join(process.cwd(), "src", "blogs");
+
+export interface HeadingMeta {
+    text: string;
+    level: number;
+    slug: string;
+}
 
 export interface BlogMeta {
     slug: string;
@@ -13,6 +20,7 @@ export interface BlogMeta {
     updated: string;
     readingTime: number;
     heroImage: string;
+    headings: HeadingMeta[];
 }
 
 /**
@@ -64,6 +72,22 @@ export function getBlogBySlug(slug: string): BlogMeta | null {
     const { data: frontmatter, content } = matter(fileContent);
     const stats = fs.statSync(mdxPath);
 
+    const slugger = new GithubSlugger();
+    const headings: HeadingMeta[] = [];
+    const headingRegex = /^(#{2,3})\s+(.+)$/gm;
+    let match: RegExpExecArray | null;
+
+    // biome-ignore lint/suspicious/noAssignInExpressions: necessary for regex parsing
+    while ((match = headingRegex.exec(content)) !== null) {
+        const level = match[1].length;
+        const text = match[2].replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").trim(); // Remove markdown links
+        headings.push({
+            text,
+            level,
+            slug: slugger.slug(text),
+        });
+    }
+
     const date = frontmatter.date
         ? new Date(frontmatter.date).toISOString()
         : stats.birthtime.toISOString();
@@ -84,6 +108,7 @@ export function getBlogBySlug(slug: string): BlogMeta | null {
         updated,
         readingTime: calculateReadingTime(content),
         heroImage: heroFiles.length > 0 ? heroFiles[0] : "",
+        headings,
     };
 }
 
