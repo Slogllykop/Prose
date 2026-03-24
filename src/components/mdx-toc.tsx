@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { HeadingMeta } from "@/lib/blog";
 import { cn } from "@/lib/utils";
@@ -138,8 +137,24 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
                                     : "text-muted-foreground",
                             )}
                         >
-                            <Link
+                            <a
                                 href={`#${heading.slug}`}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    const element = document.getElementById(
+                                        heading.slug,
+                                    );
+                                    if (element) {
+                                        window.history.replaceState(
+                                            null,
+                                            "",
+                                            `#${heading.slug}`,
+                                        );
+                                        element.scrollIntoView({
+                                            behavior: "smooth",
+                                        });
+                                    }
+                                }}
                                 className="group flex flex-col"
                             >
                                 <span
@@ -159,7 +174,7 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
                                 >
                                     {heading.text}
                                 </span>
-                            </Link>
+                            </a>
                         </li>
                     ))}
                 </ul>
