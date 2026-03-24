@@ -20,8 +20,11 @@ export function BlogCard({ blog }: BlogCardProps) {
     });
 
     return (
-        <Link href={`/${blog.slug}`} className="group block">
-            <article className="rounded-lg border border-border bg-card p-5 transition-all duration-200 hover:border-foreground/20 hover:shadow-sm">
+        <Link
+            href={`/${blog.slug}`}
+            className="group focus-ring block rounded-lg"
+        >
+            <article className="rounded-lg border border-border bg-card p-5 transition-all duration-200 group-hover:border-foreground/20 group-hover:shadow-sm">
                 <h2 className="font-semibold text-foreground text-lg tracking-tight group-hover:underline">
                     {blog.title}
                 </h2>
@@ -34,12 +37,15 @@ export function BlogCard({ blog }: BlogCardProps) {
 
                 <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-xs">
                     <span className="inline-flex items-center gap-1">
-                        <IconCalendar className="size-3.5" />
+                        <IconCalendar className="size-3.5" aria-hidden="true" />
                         {uploadDate}
                     </span>
                     {uploadDate !== updateDate && (
                         <span className="inline-flex items-center gap-1">
-                            <IconRefresh className="size-3.5" />
+                            <IconRefresh
+                                className="size-3.5"
+                                aria-hidden="true"
+                            />
                             {updateDate}
                         </span>
                     )}

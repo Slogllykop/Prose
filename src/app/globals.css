@@ -139,6 +139,16 @@
     }
 }
 
+@layer components {
+    .skip-link {
+        @apply absolute -top-full left-4 z-50 rounded-md bg-primary px-4 py-2 text-primary-foreground transition-all focus:top-4;
+    }
+
+    .focus-ring {
+        @apply outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background;
+    }
+}
+
 /* Disable backticks in inline code */
 .prose code::before,
 .prose code::after {

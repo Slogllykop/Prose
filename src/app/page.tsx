@@ -88,7 +88,7 @@ export default function Home() {
     };
 
     return (
-        <main className="mx-auto w-full max-w-2xl px-4 py-12">
+        <main id="main-content" className="mx-auto w-full max-w-2xl px-4 py-12">
             <script
                 type="application/ld+json"
                 suppressHydrationWarning
@@ -101,7 +101,7 @@ export default function Home() {
                 <Link
                     href={AUTHOR_URL}
                     target="_blank"
-                    className="flex items-center gap-4 transition-opacity hover:opacity-80"
+                    className="focus-ring flex items-center gap-4 rounded-lg transition-opacity hover:opacity-80"
                 >
                     <div className="relative size-12 overflow-hidden rounded-full border bg-muted">
                         <Image
@@ -132,7 +132,7 @@ export default function Home() {
                             variant="icon"
                             className="size-10 [&_svg]:size-8"
                         >
-                            <IconArticle />
+                            <IconArticle aria-hidden="true" />
                         </EmptyMedia>
                         <EmptyTitle className="text-xl">
                             No posts published

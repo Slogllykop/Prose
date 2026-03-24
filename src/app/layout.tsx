@@ -69,6 +69,9 @@ export default function RootLayout({
             className={cn("h-full", "antialiased", "font-sans", inter.variable)}
         >
             <body className="flex min-h-full flex-col">
+                <a href="#main-content" className="skip-link">
+                    Skip to content
+                </a>
                 <ThemeProvider
                     attribute="class"
                     defaultTheme="system"

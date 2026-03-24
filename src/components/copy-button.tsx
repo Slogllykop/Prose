@@ -31,9 +31,9 @@ export function CopyButton({ className }: { className?: string }) {
             aria-label="Copy code"
         >
             {isCopied ? (
-                <IconCheck className="size-4" />
+                <IconCheck className="size-4" aria-hidden="true" />
             ) : (
-                <IconCopy className="size-4" />
+                <IconCopy className="size-4" aria-hidden="true" />
             )}
         </button>
     );

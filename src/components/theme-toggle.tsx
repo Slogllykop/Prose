@@ -16,7 +16,7 @@ export function ThemeToggle() {
     if (!mounted) {
         return (
             <Button variant="ghost" size="icon" aria-label="Toggle theme">
-                <IconSun className="size-5" />
+                <IconSun className="size-5" aria-hidden="true" />
             </Button>
         );
     }
@@ -31,9 +31,9 @@ export function ThemeToggle() {
             }
         >
             {resolvedTheme === "dark" ? (
-                <IconSun className="size-5" />
+                <IconSun className="size-5" aria-hidden="true" />
             ) : (
-                <IconMoon className="size-5" />
+                <IconMoon className="size-5" aria-hidden="true" />
             )}
         </Button>
     );

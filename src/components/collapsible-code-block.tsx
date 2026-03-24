@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { CopyButton } from "@/components/copy-button";
+import { cn } from "@/lib/utils";
 
 const MAXIMUM_PERMITTED_LINES = 30;
 
@@ -51,11 +52,12 @@ export function CollapsibleCodeBlock({
     return (
         <div className="group relative my-4">
             <div
-                className={
+                className={cn(
+                    "relative ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
                     isCollapsible && !isExpanded
-                        ? "relative overflow-hidden rounded-lg"
-                        : "relative rounded-lg"
-                }
+                        ? "overflow-hidden rounded-lg"
+                        : "rounded-lg",
+                )}
                 style={{
                     maxHeight:
                         isCollapsible && !isExpanded
@@ -67,12 +69,12 @@ export function CollapsibleCodeBlock({
             >
                 <pre
                     ref={preRef}
-                    className={`${className || ""} m-0!`}
+                    className={`${className || ""} m-0! outline-none`}
                     {...props}
                 >
                     {children}
                 </pre>
-                <CopyButton />
+                <CopyButton className="group-focus-within:block" />
                 {isCollapsible && !isExpanded && (
                     <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-full bg-linear-to-t from-background to-transparent" />
                 )}
@@ -83,7 +85,8 @@ export function CollapsibleCodeBlock({
                     <button
                         type="button"
                         onClick={() => setIsExpanded(!isExpanded)}
-                        className="rounded-md bg-muted px-4 py-2 font-medium text-muted-foreground text-sm transition-colors hover:bg-muted/80 hover:text-foreground"
+                        aria-expanded={isExpanded}
+                        className="focus-ring rounded-md bg-muted px-4 py-2 font-medium text-muted-foreground text-sm transition-colors hover:bg-muted/80 hover:text-foreground"
                     >
                         {isExpanded ? "Collapse code" : "Expand code"}
                     </button>

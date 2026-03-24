@@ -158,7 +158,7 @@ export default async function BlogPage(props: {
     };
 
     return (
-        <main className="mx-auto w-full max-w-7xl px-4 py-12">
+        <main id="main-content" className="mx-auto w-full max-w-7xl px-4 py-12">
             <script
                 type="application/ld+json"
                 suppressHydrationWarning
@@ -170,9 +170,9 @@ export default async function BlogPage(props: {
             <header className="mx-auto mb-12 flex max-w-2xl items-center justify-between">
                 <Link
                     href="/"
-                    className="inline-flex items-center gap-1.5 text-muted-foreground text-sm transition-colors hover:text-foreground"
+                    className="focus-ring -ml-2 inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-muted-foreground text-sm transition-colors hover:text-foreground"
                 >
-                    <IconArrowLeft className="size-4" />
+                    <IconArrowLeft className="size-4" aria-hidden="true" />
                     All posts
                 </Link>
                 <ThemeToggle />
@@ -206,17 +206,26 @@ export default async function BlogPage(props: {
                                 </Link>
                                 <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-muted-foreground text-xs">
                                     <span className="inline-flex items-center gap-1">
-                                        <IconCalendar className="size-3" />
+                                        <IconCalendar
+                                            className="size-3"
+                                            aria-hidden="true"
+                                        />
                                         {uploadDate}
                                     </span>
                                     {uploadDate !== updateDate && (
                                         <span className="inline-flex items-center gap-1">
-                                            <IconRefresh className="size-3" />
+                                            <IconRefresh
+                                                className="size-3"
+                                                aria-hidden="true"
+                                            />
                                             {updateDate}
                                         </span>
                                     )}
                                     <span className="inline-flex items-center gap-1">
-                                        <IconClock className="size-3" />
+                                        <IconClock
+                                            className="size-3"
+                                            aria-hidden="true"
+                                        />
                                         {blog.readingTime} min read
                                     </span>
                                 </div>
@@ -240,9 +249,9 @@ export default async function BlogPage(props: {
                     </div>
                 </article>
                 <aside className="sticky top-24 hidden h-fit lg:block">
-                    <div className="w-[250px]">
+                    <nav aria-label="Table of contents" className="w-[250px]">
                         <TableOfContents headings={blog.headings} />
-                    </div>
+                    </nav>
                 </aside>
             </div>
 
