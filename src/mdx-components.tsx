@@ -46,5 +46,49 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
                 <CopyButton />
             </div>
         ),
+        table: ({
+            className,
+            ...props
+        }: React.HTMLAttributes<HTMLTableElement>) => (
+            <div className="w-fit max-w-full overflow-x-auto rounded-lg border border-border">
+                <table
+                    className={`my-0! w-max text-sm ${className || ""}`}
+                    {...props}
+                />
+            </div>
+        ),
+        thead: ({
+            className,
+            ...props
+        }: React.HTMLAttributes<HTMLTableSectionElement>) => (
+            <thead className={`bg-muted/50 ${className || ""}`} {...props} />
+        ),
+        tr: ({
+            className,
+            ...props
+        }: React.HTMLAttributes<HTMLTableRowElement>) => (
+            <tr
+                className={`m-0 border-border border-b p-0 last:border-b-0 even:bg-muted/20 ${className || ""}`}
+                {...props}
+            />
+        ),
+        th: ({
+            className,
+            ...props
+        }: React.ThHTMLAttributes<HTMLTableCellElement>) => (
+            <th
+                className={`border-border border-r px-4 py-3 text-left font-medium last:border-r-0 [[align=center]]:text-center [[align=right]]:text-right ${className || ""}`}
+                {...props}
+            />
+        ),
+        td: ({
+            className,
+            ...props
+        }: React.TdHTMLAttributes<HTMLTableCellElement>) => (
+            <td
+                className={`border-border border-r px-4 py-3 text-left last:border-r-0 [[align=center]]:text-center [[align=right]]:text-right ${className || ""}`}
+                {...props}
+            />
+        ),
     };
 }

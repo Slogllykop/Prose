@@ -137,33 +137,24 @@
     button {
         cursor: pointer;
     }
+}
 
-    /* Disable backticks in inline code */
-    .prose code::before,
-    .prose code::after {
-        content: none;
-    }
+/* Disable backticks in inline code */
+.prose code::before,
+.prose code::after {
+    content: "";
+}
 
-    /* Enhance light mode MDX markdown contrast */
-    html:not(.dark) .prose hr {
-        border-color: oklch(0.7 0.01 80);
-    }
-    html:not(.dark) .prose blockquote {
-        border-left-color: oklch(0.6 0.01 80);
-        color: oklch(0.35 0.01 80);
-    }
-    html:not(.dark) .prose li::marker {
-        color: oklch(0.45 0.01 80);
-    }
-    html:not(.dark) .prose th,
-    html:not(.dark) .prose td,
-    html:not(.dark) .prose thead,
-    html:not(.dark) .prose tbody tr {
-        border-color: oklch(0.75 0.01 80);
-    }
-    html:not(.dark) .prose table {
-        border-color: oklch(0.75 0.01 80);
-    }
+/* Force prose colors to match our theme dynamically */
+.prose-zinc,
+.dark .prose-invert {
+    --tw-prose-bullets: var(--muted-foreground);
+    --tw-prose-counters: var(--muted-foreground);
+    --tw-prose-hr: var(--border);
+    --tw-prose-quotes: var(--foreground);
+    --tw-prose-quote-borders: var(--border);
+    --tw-prose-th-borders: var(--border);
+    --tw-prose-td-borders: var(--border);
 }
 
 /* Inline code */
