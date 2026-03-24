@@ -6,7 +6,6 @@ import {
     IconClock,
     IconRefresh,
 } from "@tabler/icons-react";
-import type { MDXComponents } from "mdx/types";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,64 +26,8 @@ import {
 
 const BLOGS_DIR = path.join(process.cwd(), "src", "blogs");
 
-const ALIGN_CLASSES: Record<string, string> = {
-    left: "mr-auto",
-    center: "mx-auto",
-    right: "ml-auto",
-};
-
-function createBlogComponents(slug: string): MDXComponents {
-    function rewriteSrc(src: string): string {
-        if (src.startsWith("images/")) {
-            return `/api/v1/blog-assets/${slug}/${src}`;
-        }
-        return src;
-    }
-
-    return {
-        // Handles standard markdown images: ![alt](images/photo.png)
-        img: (props) => {
-            const src = rewriteSrc((props.src as string) || "");
-            return (
-                // biome-ignore lint/a11y/useAltText: alt is passed through from MDX content
-                // biome-ignore lint/performance/noImgElement: required for dynamic MDX image path rewriting
-                <img {...props} src={src} className="rounded-lg" />
-            );
-        },
-        // Advanced image component for JSX usage in MDX with width, height, align support:
-        // <BlogImage src="images/photo.png" alt="Description" width={400} align="center" />
-        BlogImage: (props: {
-            src: string;
-            alt?: string;
-            width?: number | string;
-            height?: number | string;
-            align?: "left" | "center" | "right";
-            className?: string;
-        }) => {
-            const src = rewriteSrc(props.src || "");
-            const alignClass = props.align
-                ? ALIGN_CLASSES[props.align] || ""
-                : "";
-            const className =
-                `block rounded-lg ${alignClass} ${props.className || ""}`.trim();
-
-            return (
-                // biome-ignore lint/performance/noImgElement: required for dynamic MDX image path rewriting
-                <img
-                    src={src}
-                    alt={props.alt}
-                    width={props.width}
-                    height={props.height}
-                    className={className}
-                    style={{
-                        width: props.width ? `${props.width}px` : undefined,
-                        height: props.height ? `${props.height}px` : undefined,
-                    }}
-                />
-            );
-        },
-    };
-}
+// createBlogComponents has been moved to src/mdx-components.tsx
+// to support nested MDX components across modular blog chunks.
 
 export const dynamicParams = false;
 
@@ -215,105 +158,102 @@ export default async function BlogPage(props: {
     };
 
     return (
-        <>
+        <main className="mx-auto w-full max-w-7xl px-4 py-12">
             <script
                 type="application/ld+json"
+                suppressHydrationWarning
                 // biome-ignore lint/security/noDangerouslySetInnerHtml: Needed for JSON-LD
                 dangerouslySetInnerHTML={{
                     __html: JSON.stringify(jsonLd),
                 }}
             />
-            <main className="mx-auto w-full max-w-7xl px-4 py-12">
-                <header className="mx-auto mb-12 flex max-w-2xl items-center justify-between">
-                    <Link
-                        href="/"
-                        className="inline-flex items-center gap-1.5 text-muted-foreground text-sm transition-colors hover:text-foreground"
-                    >
-                        <IconArrowLeft className="size-4" />
-                        All posts
-                    </Link>
-                    <ThemeToggle />
-                </header>
+            <header className="mx-auto mb-12 flex max-w-2xl items-center justify-between">
+                <Link
+                    href="/"
+                    className="inline-flex items-center gap-1.5 text-muted-foreground text-sm transition-colors hover:text-foreground"
+                >
+                    <IconArrowLeft className="size-4" />
+                    All posts
+                </Link>
+                <ThemeToggle />
+            </header>
 
-                <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_minmax(0,672px)_1fr]">
-                    <div className="hidden lg:block" />{" "}
-                    {/* Left Spacer to center the article */}
-                    <article className="w-full">
-                        <div className="mb-6">
-                            <h1 className="font-bold text-3xl tracking-tight">
-                                {blog.title}
-                            </h1>
+            <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_minmax(0,672px)_1fr]">
+                <div className="hidden lg:block" />{" "}
+                {/* Left Spacer to center the article */}
+                <article className="w-full">
+                    <div className="mb-6">
+                        <h1 className="font-bold text-3xl tracking-tight">
+                            {blog.title}
+                        </h1>
 
-                            <div className="mt-4 flex items-center gap-3">
-                                <Image
-                                    src={AUTHOR_IMAGE}
-                                    alt={AUTHOR_NAME}
-                                    width={36}
-                                    height={36}
-                                    className="rounded-full"
-                                />
-                                <div className="flex flex-col">
-                                    <Link
-                                        href={AUTHOR_URL}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="font-medium text-foreground text-sm hover:underline"
-                                    >
-                                        {AUTHOR_NAME}
-                                    </Link>
-                                    <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-muted-foreground text-xs">
+                        <div className="mt-4 flex items-center gap-3">
+                            <Image
+                                src={AUTHOR_IMAGE}
+                                alt={AUTHOR_NAME}
+                                width={36}
+                                height={36}
+                                className="rounded-full"
+                            />
+                            <div className="flex flex-col">
+                                <Link
+                                    href={AUTHOR_URL}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="font-medium text-foreground text-sm hover:underline"
+                                >
+                                    {AUTHOR_NAME}
+                                </Link>
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-muted-foreground text-xs">
+                                    <span className="inline-flex items-center gap-1">
+                                        <IconCalendar className="size-3" />
+                                        {uploadDate}
+                                    </span>
+                                    {uploadDate !== updateDate && (
                                         <span className="inline-flex items-center gap-1">
-                                            <IconCalendar className="size-3" />
-                                            {uploadDate}
+                                            <IconRefresh className="size-3" />
+                                            {updateDate}
                                         </span>
-                                        {uploadDate !== updateDate && (
-                                            <span className="inline-flex items-center gap-1">
-                                                <IconRefresh className="size-3" />
-                                                {updateDate}
-                                            </span>
-                                        )}
-                                        <span className="inline-flex items-center gap-1">
-                                            <IconClock className="size-3" />
-                                            {blog.readingTime} min read
-                                        </span>
-                                    </div>
+                                    )}
+                                    <span className="inline-flex items-center gap-1">
+                                        <IconClock className="size-3" />
+                                        {blog.readingTime} min read
+                                    </span>
                                 </div>
                             </div>
                         </div>
-
-                        <div className="mb-8 overflow-hidden rounded-lg border border-border bg-muted">
-                            <Image
-                                src={heroToDisplay}
-                                alt={`Hero image for ${blog.title}`}
-                                width={1200}
-                                height={630}
-                                className="aspect-16/7 w-full object-cover"
-                                priority
-                            />
-                        </div>
-
-                        <div className="prose prose-zinc dark:prose-invert max-w-none prose-pre:bg-muted prose-pre:p-0 prose-li:text-justify prose-p:text-justify prose-headings:font-semibold prose-headings:tracking-tight prose-a:underline prose-a:underline-offset-4">
-                            <MdxContent
-                                components={createBlogComponents(slug)}
-                            />
-                        </div>
-                    </article>
-                    <aside className="sticky top-24 hidden h-fit lg:block">
-                        <div className="w-[250px]">
-                            <TableOfContents headings={blog.headings} />
-                        </div>
-                    </aside>
-                </div>
-
-                <footer className="mx-auto mt-16 max-w-2xl">
-                    <div className="flex items-center justify-between border-border border-t py-8 text-muted-foreground text-sm">
-                        <p>
-                            &copy; {new Date().getFullYear()} {AUTHOR_NAME}
-                        </p>
-                        <BackToTop />
                     </div>
-                </footer>
-            </main>
-        </>
+
+                    <div className="mb-8 overflow-hidden rounded-lg border border-border bg-muted">
+                        <Image
+                            src={heroToDisplay}
+                            alt={`Hero image for ${blog.title}`}
+                            width={1200}
+                            height={630}
+                            className="aspect-16/7 w-full object-cover"
+                            priority
+                        />
+                    </div>
+
+                    <div className="prose prose-zinc dark:prose-invert max-w-none prose-pre:bg-muted prose-pre:p-0 prose-li:text-justify prose-p:text-justify prose-headings:font-semibold prose-headings:tracking-tight prose-a:underline prose-a:underline-offset-4">
+                        <MdxContent />
+                    </div>
+                </article>
+                <aside className="sticky top-24 hidden h-fit lg:block">
+                    <div className="w-[250px]">
+                        <TableOfContents headings={blog.headings} />
+                    </div>
+                </aside>
+            </div>
+
+            <footer className="mx-auto mt-16 max-w-2xl">
+                <div className="flex items-center justify-between border-border border-t py-8 text-muted-foreground text-sm">
+                    <p>
+                        &copy; {new Date().getFullYear()} {AUTHOR_NAME}
+                    </p>
+                    <BackToTop />
+                </div>
+            </footer>
+        </main>
     );
 }

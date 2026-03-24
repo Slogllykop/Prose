@@ -1,4 +1,5 @@
 import type { MDXComponents } from "mdx/types";
+import { BlogImage } from "@/components/blog-image";
 import { CollapsibleCodeBlock } from "@/components/collapsible-code-block";
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
@@ -41,6 +42,14 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
             />
         ),
         pre: (props) => <CollapsibleCodeBlock {...props} />,
+        img: (props) => (
+            <BlogImage
+                src={(props.src as string) || ""}
+                alt={(props.alt as string) || ""}
+                {...props}
+            />
+        ),
+        BlogImage,
         table: ({
             className,
             ...props

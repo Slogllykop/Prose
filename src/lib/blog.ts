@@ -77,8 +77,29 @@ export function getBlogBySlug(slug: string): BlogMeta | BlogError | null {
     const mdxPath = path.join(folderPath, "blog.mdx");
 
     const fileContent = fs.readFileSync(mdxPath, "utf-8");
-    const { data: frontmatter, content } = matter(fileContent);
+    const { data: frontmatter, content: mainContent } = matter(fileContent);
     const stats = fs.statSync(mdxPath);
+
+    // Resolve imported MDX files to include their content for TOC and reading time
+    const importRegex = /import\s+(\w+)\s+from\s+['"]\.\/([^'"]+\.mdx)['"]/g;
+    const imports: Record<string, string> = {};
+    let importMatch: RegExpExecArray | null;
+
+    // biome-ignore lint/suspicious/noAssignInExpressions: necessary for regex parsing
+    while ((importMatch = importRegex.exec(fileContent)) !== null) {
+        imports[importMatch[1]] = importMatch[2];
+    }
+
+    let expandedContent = mainContent;
+    for (const [componentName, fileName] of Object.entries(imports)) {
+        const filePath = path.join(folderPath, fileName);
+        if (fs.existsSync(filePath)) {
+            const childRaw = fs.readFileSync(filePath, "utf-8");
+            const { content: childContent } = matter(childRaw);
+            const tagRegex = new RegExp(`<${componentName}\\s*\\/>`, "g");
+            expandedContent = expandedContent.replace(tagRegex, childContent);
+        }
+    }
 
     const slugger = new GithubSlugger();
     const headings: HeadingMeta[] = [];
@@ -86,7 +107,7 @@ export function getBlogBySlug(slug: string): BlogMeta | BlogError | null {
     let match: RegExpExecArray | null;
 
     // biome-ignore lint/suspicious/noAssignInExpressions: necessary for regex parsing
-    while ((match = headingRegex.exec(content)) !== null) {
+    while ((match = headingRegex.exec(expandedContent)) !== null) {
         const level = match[1].length;
         const text = match[2].replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").trim(); // Remove markdown links
         headings.push({
@@ -114,7 +135,7 @@ export function getBlogBySlug(slug: string): BlogMeta | BlogError | null {
         description: (frontmatter.description as string) || "",
         date,
         updated,
-        readingTime: calculateReadingTime(content),
+        readingTime: calculateReadingTime(expandedContent),
         heroImage: heroFiles.length > 0 ? heroFiles[0] : "",
         headings,
     };
