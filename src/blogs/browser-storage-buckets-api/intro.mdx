@@ -1,0 +1,15 @@
+Every web developer has felt the sting: a user running low on disk space, the browser decides to nuke your IndexedDB, and suddenly your offline-first app has amnesia. The old `navigator.storage.persist()` call was the only lifeline, and it was all-or-nothing. Either *everything* your origin stored was marked persistent, or nothing was.
+
+The Storage Buckets API changes that completely. It lets you carve your origin&apos;s storage into named buckets, each with its own eviction priority, durability guarantees, quota limits, and even expiration dates. Think of it as `localStorage` growing up and getting a filing cabinet.
+
+But before you assume this is just cloud storage buckets ported to the browser: it is not. The name is where the similarity ends.
+
+## The Problem: All Your Data Lives in One Eviction Blast Radius
+
+Before Storage Buckets, every storage API on an origin (IndexedDB, CacheStorage, the Origin Private File System) shared a single eviction fate. When the browser ran into storage pressure, it would look at your origin and make a binary call: keep everything, or torch everything.
+
+The `navigator.storage.persist()` API tried to help, but it applied to the *entire origin*. You could not tell the browser “keep the user&apos;s unsaved document, but feel free to drop the thumbnail cache.” The granularity simply did not exist.
+
+This is a real problem for applications that store heterogeneous data. An email client cares deeply about unsent drafts but can re-fetch inbox messages from the server. A music streaming app needs the current playlist cached, but last month&apos;s recommendations can go. A document editor must preserve offline edits, but the undo history is expendable.
+
+The Storage Buckets API solves this by letting you group related data into named buckets with individual storage policies.

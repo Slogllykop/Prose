@@ -1,0 +1,116 @@
+### 3. The Storage Bucket Layer (`src/storage/bucket-layer.js`)
+
+This file contains the core logic for initializing the bucket with strict durability and persistence.
+
+```javascript
+/**
+ * bucket-layer.js
+ * Thin abstraction over the Chrome Storage Buckets API.
+ * Provides feature detection, bucket lifecycle, and quota helpers.
+ *
+ * @see https://developer.chrome.com/docs/web-platform/storage-buckets
+ * @see https://wicg.github.io/storage-buckets/
+ */
+
+/**
+ * Returns the storage bucket manager (either modern or legacy).
+ */
+function getManager() {
+  if (typeof navigator === 'undefined') return null;
+  const modern = navigator.storage?.buckets;
+  const legacy = navigator.storageBuckets;
+  console.log('Bucket Layer - getManager:', { modern: !!modern, legacy: !!legacy });
+  return modern ?? legacy ?? null;
+}
+
+/**
+ * Returns true when the Storage Buckets API is available.
+ */
+export function isSupported() {
+  const supported = !!getManager();
+  console.log('Bucket Layer - isSupported:', supported);
+  return supported;
+}
+
+/**
+ * Asserts that the API is available or throws a descriptive error.
+ */
+function assertSupport() {
+  if (!isSupported()) {
+    throw new Error(
+      'Storage Buckets API is not supported in this browser. ' +
+      'Please use a modern Chromium browser with the feature enabled.'
+    );
+  }
+}
+
+/**
+ * Opens (or creates) a named storage bucket.
+ *
+ * @param {string} name     - bucket name (lowercase, alphanumeric + hyphens)
+ * @param {object} [options]
+ * @param {boolean} [options.persisted=true]      - survive storage pressure
+ * @param {'strict'|'relaxed'} [options.durability='strict'] - write durability hint
+ * @returns {Promise<StorageBucket>}
+ */
+export async function initBucket(name, options = {}) {
+  const manager = getManager();
+  if (!manager) assertSupport();
+
+  const { persisted = true, durability = 'strict' } = options;
+
+  const bucket = await manager.open(name, {
+    persisted,
+    durability,
+  });
+
+  return bucket;
+}
+
+/**
+ * Deletes a named storage bucket and all its associated data.
+ *
+ * @param {string} name
+ * @returns {Promise<void>}
+ */
+export async function deleteBucket(name) {
+  const manager = getManager();
+  if (!manager) assertSupport();
+  await manager.delete(name);
+}
+
+/**
+ * Lists all bucket names for the current origin.
+ *
+ * @returns {Promise<string[]>}
+ */
+export async function listBuckets() {
+  const manager = getManager();
+  if (!manager) assertSupport();
+  return manager.keys();
+}
+
+/**
+ * Returns quota usage information for a bucket.
+ *
+ * @param {StorageBucket} bucket
+ * @returns {Promise<{ usage: number, quota: number }>}
+ */
+export async function getBucketEstimate(bucket) {
+  const estimate = await bucket.estimate();
+  return {
+    usage: estimate.usage ?? 0,
+    quota: estimate.quota ?? 0,
+  };
+}
+
+/**
+ * Checks whether the bucket is actually persisted.
+ *
+ * @param {StorageBucket} bucket
+ * @returns {Promise<boolean>}
+ */
+export async function isBucketPersisted(bucket) {
+  return bucket.persisted();
+}
+```

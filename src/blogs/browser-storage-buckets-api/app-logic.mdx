@@ -1,0 +1,211 @@
+### 6. Application Logic (`src/app.js`)
+
+Wiring everything together: initializing the bucket, loading notes, and handling user input.
+
+```javascript
+/**
+ * app.js
+ * Application entry point. Bootstraps the storage bucket,
+ * wires up events, and manages app state.
+ */
+
+import { isSupported, initBucket, getBucketEstimate, isBucketPersisted } from './storage/bucket-layer.js';
+import { createNoteStore } from './storage/note-store.js';
+import {
+  renderNoteList,
+  populateEditor,
+  clearEditor,
+  updateStatusBar,
+  showToast,
+  showUnsupportedBanner,
+} from './ui.js';
+
+/* ------------------------------------------------------------------ */
+/*  Constants                                                          */
+/* ------------------------------------------------------------------ */
+
+const BUCKET_NAME = 'notes';
+
+/* ------------------------------------------------------------------ */
+/*  State                                                              */
+/* ------------------------------------------------------------------ */
+
+let noteStore   = null;
+let bucket      = null;
+let activeNoteId = null;
+let notes       = [];
+let saveTimeout = null;
+
+/* ------------------------------------------------------------------ */
+/*  DOM references                                                     */
+/* ------------------------------------------------------------------ */
+
+const $noteList   = document.getElementById('note-list');
+const $titleInput = document.getElementById('editor-title');
+const $bodyInput  = document.getElementById('editor-body');
+const $statusBar  = document.getElementById('status-bar');
+const $btnNew     = document.getElementById('btn-new');
+const $btnSave    = document.getElementById('btn-save');
+const $editorPlaceholder = document.getElementById('editor-placeholder');
+const $editorContent     = document.getElementById('editor-content');
+
+/* ------------------------------------------------------------------ */
+/*  Helpers                                                            */
+/* ------------------------------------------------------------------ */
+
+function setEditorVisible(visible) {
+  $editorPlaceholder.hidden = visible;
+  $editorContent.hidden     = !visible;
+}
+
+async function refreshStatus() {
+  if (!bucket) return;
+
+  try {
+    const estimate  = await getBucketEstimate(bucket);
+    const persisted = await isBucketPersisted(bucket);
+    const count     = notes.length;
+    updateStatusBar($statusBar, estimate, persisted, count);
+  } catch {
+    // silently swallow - quota reporting may not be available
+  }
+}
+
+async function loadNotes() {
+  notes = await noteStore.getAll();
+}
+
+function renderList() {
+  renderNoteList($noteList, notes, activeNoteId, handleSelectNote, handleDeleteNote);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Event Handlers                                                     */
+/* ------------------------------------------------------------------ */
+
+function handleSelectNote(id) {
+  activeNoteId = id;
+  const note = notes.find(n => n.id === id);
+
+  if (note) {
+    populateEditor(note, $titleInput, $bodyInput);
+    setEditorVisible(true);
+  }
+
+  renderList();
+}
+
+async function handleDeleteNote(id) {
+  await noteStore.remove(id);
+
+  if (activeNoteId === id) {
+    activeNoteId = null;
+    clearEditor($titleInput, $bodyInput);
+    setEditorVisible(false);
+  }
+
+  await loadNotes();
+  renderList();
+  await refreshStatus();
+  showToast('Note deleted', 'info');
+}
+
+async function handleNewNote() {
+  const note = await noteStore.save({ title: '', body: '' });
+  await loadNotes();
+  activeNoteId = note.id;
+  renderList();
+  populateEditor(note, $titleInput, $bodyInput);
+  setEditorVisible(true);
+  $titleInput.focus();
+  await refreshStatus();
+  showToast('New note created', 'success');
+}
+
+async function handleSave() {
+  if (!activeNoteId) return;
+
+  const existing = notes.find(n => n.id === activeNoteId);
+  if (!existing) return;
+
+  const updated = await noteStore.save({
+    ...existing,
+    title: $titleInput.value,
+    body:  $bodyInput.value,
+  });
+
+  await loadNotes();
+  renderList();
+  await refreshStatus();
+
+  // Keep the editor populated with the refreshed record
+  const refreshed = notes.find(n => n.id === updated.id);
+  if (refreshed) populateEditor(refreshed, $titleInput, $bodyInput);
+}
+
+function scheduleAutoSave() {
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => handleSave(), 800);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Bootstrap                                                          */
+/* ------------------------------------------------------------------ */
+
+async function init() {
+  // Feature detection
+  if (!isSupported()) {
+    showUnsupportedBanner(true);
+    return;
+  }
+
+  showUnsupportedBanner(false);
+
+  try {
+    console.log('App: Entering storage init');
+    bucket    = await initBucket(BUCKET_NAME);
+    console.log('App: Bucket initialized', bucket);
+    noteStore = await createNoteStore(bucket);
+    console.log('App: Store initialized', noteStore);
+    showUnsupportedBanner(false);
+  } catch (err) {
+    showToast(`Storage error: ${err.message}`, 'error');
+    console.error('App: Initialisation failure', err);
+    showUnsupportedBanner(true);
+    return;
+  }
+
+  await loadNotes();
+  renderList();
+  setEditorVisible(false);
+  await refreshStatus();
+
+  // Wire events
+  $btnNew.addEventListener('click', handleNewNote);
+  $btnSave.addEventListener('click', async () => {
+    await handleSave();
+    showToast('Note saved', 'success');
+  });
+
+  $titleInput.addEventListener('input', scheduleAutoSave);
+  $bodyInput.addEventListener('input', scheduleAutoSave);
+
+  // Keyboard shortcut: Ctrl/Cmd + S to save
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      handleSave().then(() => showToast('Note saved', 'success'));
+    }
+  });
+
+  // Keyboard shortcut: Alt + N for new note
+  document.addEventListener('keydown', (e) => {
+    if (e.altKey && e.key === 'n') {
+      e.preventDefault();
+      handleNewNote();
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+```

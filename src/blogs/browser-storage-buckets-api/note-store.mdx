@@ -1,0 +1,185 @@
+### 4. The Data Store (`src/storage/note-store.js`)
+
+Here we open IndexedDB **through the bucket**. This is the secret sauce: the database is now namespace-isolated and governed by the bucket&apos;s eviction policy.
+
+```javascript
+/**
+ * note-store.js
+ * IndexedDB-backed CRUD for notes, scoped to a Storage Bucket.
+ *
+ * The database lives inside the bucket so the browser can manage its
+ * persistence and eviction independently of other site data.
+ */
+
+const DB_NAME    = 'notes-db';
+const DB_VERSION = 1;
+const STORE_NAME = 'notes';
+
+/**
+ * Opens (or upgrades) the IndexedDB database scoped to the given bucket.
+ *
+ * @param {StorageBucket} bucket
+ * @returns {Promise<IDBDatabase>}
+ */
+function openDatabase(bucket) {
+  return new Promise((resolve, reject) => {
+    // Use the bucket-scoped IndexedDB factory instead of window.indexedDB
+    const request = bucket.indexedDB.open(DB_NAME, DB_VERSION);
+
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+        store.createIndex('updatedAt', 'updatedAt', { unique: false });
+      }
+    };
+
+    request.onsuccess = () => resolve(request.result);
+    request.onerror   = () => reject(request.error);
+  });
+}
+
+/**
+ * Creates a NoteStore bound to the provided Storage Bucket.
+ *
+ * Usage:
+ *   const store = await createNoteStore(bucket);
+ *   await store.save({ title: 'Hello', body: '...' });
+ *   const notes = await store.getAll();
+ */
+export async function createNoteStore(bucket) {
+  const db = await openDatabase(bucket);
+
+  /**
+   * Wraps a read/write transaction in a promise.
+   */
+  function withTransaction(mode, callback) {
+    return new Promise((resolve, reject) => {
+      const tx    = db.transaction(STORE_NAME, mode);
+      const store = tx.objectStore(STORE_NAME);
+
+      let result;
+      try {
+        result = callback(store, tx);
+      } catch (err) {
+        reject(err);
+        return;
+      }
+
+      tx.oncomplete = () => resolve(result);
+      tx.onerror    = () => reject(tx.error);
+      tx.onabort    = () => reject(tx.error);
+    });
+  }
+
+  /**
+   * Resolves an IDBRequest inside a transaction.
+   */
+  function requestToPromise(request) {
+    return new Promise((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result);
+      request.onerror   = () => reject(request.error);
+    });
+  }
+
+  return {
+    /**
+     * Returns all notes, sorted by updatedAt descending (newest first).
+     * @returns {Promise<Array<object>>}
+     */
+    async getAll() {
+      const tx    = db.transaction(STORE_NAME, 'readonly');
+      const store = tx.objectStore(STORE_NAME);
+      const index = store.index('updatedAt');
+
+      const notes = [];
+
+      return new Promise((resolve, reject) => {
+        // Open a cursor in 'prev' direction for descending order
+        const cursorReq = index.openCursor(null, 'prev');
+
+        cursorReq.onsuccess = (event) => {
+          const cursor = event.target.result;
+          if (cursor) {
+            notes.push(cursor.value);
+            cursor.continue();
+          } else {
+            resolve(notes);
+          }
+        };
+
+        cursorReq.onerror = () => reject(cursorReq.error);
+      });
+    },
+
+    /**
+     * Gets a single note by ID.
+     * @param {string} id
+     * @returns {Promise<object|undefined>}
+     */
+    async getById(id) {
+      const tx      = db.transaction(STORE_NAME, 'readonly');
+      const store   = tx.objectStore(STORE_NAME);
+      const request = store.get(id);
+      return requestToPromise(request);
+    },
+
+    /**
+     * Inserts or updates a note.
+     * Automatically sets `id`, `createdAt`, and `updatedAt`.
+     *
+     * @param {object} note - must include at least `title` and `body`
+     * @returns {Promise<object>} the persisted note
+     */
+    async save(note) {
+      const now = Date.now();
+
+      const record = {
+        ...note,
+        id:        note.id || crypto.randomUUID(),
+        createdAt: note.createdAt || now,
+        updatedAt: now,
+      };
+
+      await withTransaction('readwrite', (store) => {
+        store.put(record);
+      });
+
+      return record;
+    },
+
+    /**
+     * Deletes a note by its ID.
+     * @param {string} id
+     * @returns {Promise<void>}
+     */
+    async remove(id) {
+      await withTransaction('readwrite', (store) => {
+        store.delete(id);
+      });
+    },
+
+    /**
+     * Removes all notes from the store.
+     * @returns {Promise<void>}
+     */
+    async clearAll() {
+      await withTransaction('readwrite', (store) => {
+        store.clear();
+      });
+    },
+
+    /**
+     * Returns the total count of notes.
+     * @returns {Promise<number>}
+     */
+    async count() {
+      const tx      = db.transaction(STORE_NAME, 'readonly');
+      const store   = tx.objectStore(STORE_NAME);
+      const request = store.count();
+      return requestToPromise(request);
+    },
+  };
+}
+```

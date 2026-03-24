@@ -1,0 +1,212 @@
+### 5. UI Helpers (`src/ui.js`)
+
+Pure DOM helpers for rendering the note-taking UI. No framework dependencies-just plain DOM manipulation.
+
+```javascript
+/**
+ * ui.js
+ * Pure DOM helpers for rendering the note-taking UI.
+ * No framework dependencies - just plain DOM manipulation.
+ */
+
+/**
+ * Formats a timestamp (ms since epoch) into a human-readable relative string.
+ * @param {number} ts
+ * @returns {string}
+ */
+function timeAgo(ts) {
+  const seconds = Math.floor((Date.now() - ts) / 1000);
+  if (seconds < 5)     return 'just now';
+  if (seconds < 60)    return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60)    return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24)      return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
+/**
+ * Escapes HTML entities to prevent XSS in rendered text.
+ */
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Note List (Sidebar)                                                */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Renders the note list into the sidebar container.
+ *
+ * @param {HTMLElement} container   - the sidebar list element
+ * @param {Array}       notes      - array of note objects
+ * @param {string|null} activeId   - currently selected note id
+ * @param {Function}    onSelect   - callback(noteId)
+ * @param {Function}    onDelete   - callback(noteId)
+ */
+export function renderNoteList(container, notes, activeId, onSelect, onDelete) {
+  container.innerHTML = '';
+
+  if (notes.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'note-list-empty';
+    empty.innerHTML = `
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+        <polyline points="10 9 9 9 8 9"/>
+      </svg>
+      <p>No notes yet</p>
+      <p class="note-list-empty-hint">Create one to get started</p>
+    `;
+    container.appendChild(empty);
+    return;
+  }
+
+  for (const note of notes) {
+    const card = document.createElement('button');
+    card.className = `note-card${note.id === activeId ? ' note-card--active' : ''}`;
+    card.dataset.id = note.id;
+    card.type = 'button';
+
+    const preview = (note.body || '').slice(0, 80).replace(/\n/g, ' ');
+
+    card.innerHTML = `
+      <div class="note-card__content">
+        <h3 class="note-card__title">${escapeHtml(note.title || 'Untitled')}</h3>
+        <p class="note-card__preview">${escapeHtml(preview) || 'Empty note'}</p>
+        <time class="note-card__time">${timeAgo(note.updatedAt)}</time>
+      </div>
+      <button class="note-card__delete" title="Delete note" type="button" aria-label="Delete note">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+          <path d="M10 11v6"/>
+          <path d="M14 11v6"/>
+          <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+        </svg>
+      </button>
+    `;
+
+    // Select handler
+    card.addEventListener('click', (e) => {
+      // Don't select if delete button was clicked
+      if (e.target.closest('.note-card__delete')) return;
+      onSelect(note.id);
+    });
+
+    // Delete handler
+    const delBtn = card.querySelector('.note-card__delete');
+    delBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      onDelete(note.id);
+    });
+
+    container.appendChild(card);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Editor                                                             */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Populates the editor fields with a note's data.
+ *
+ * @param {object}      note
+ * @param {HTMLInputElement}    titleInput
+ * @param {HTMLTextAreaElement} bodyInput
+ */
+export function populateEditor(note, titleInput, bodyInput) {
+  titleInput.value = note?.title ?? '';
+  bodyInput.value  = note?.body  ?? '';
+  titleInput.disabled = !note;
+  bodyInput.disabled  = !note;
+}
+
+/**
+ * Clears the editor and disables inputs.
+ */
+export function clearEditor(titleInput, bodyInput) {
+  populateEditor(null, titleInput, bodyInput);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Status Bar                                                         */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Updates the quota / status bar.
+ *
+ * @param {HTMLElement} el
+ * @param {{ usage: number, quota: number }} estimate
+ * @param {boolean} persisted
+ * @param {number}  noteCount
+ */
+export function updateStatusBar(el, estimate, persisted, noteCount) {
+  const usageMB = (estimate.usage / (1024 * 1024)).toFixed(2);
+  const quotaMB = (estimate.quota / (1024 * 1024)).toFixed(0);
+  const pct     = estimate.quota > 0
+    ? ((estimate.usage / estimate.quota) * 100).toFixed(1)
+    : '0.0';
+
+  el.innerHTML = `
+    <span class="status-item">
+      <span class="status-dot ${persisted ? 'status-dot--persisted' : 'status-dot--volatile'}"></span>
+      ${persisted ? 'Persisted' : 'Best-effort'}
+    </span>
+    <span class="status-item">${noteCount} note${noteCount !== 1 ? 's' : ''}</span>
+    <span class="status-item">${usageMB} / ${quotaMB} MB (${pct}%)</span>
+  `;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Toast                                                              */
+/* ------------------------------------------------------------------ */
+
+let toastTimeout = null;
+
+/**
+ * Shows a brief toast notification.
+ *
+ * @param {string} message
+ * @param {'info'|'success'|'error'} [type='info']
+ */
+export function showToast(message, type = 'info') {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    document.body.appendChild(toast);
+  }
+
+  toast.textContent = message;
+  toast.className = `toast toast--${type} toast--visible`;
+
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    toast.classList.remove('toast--visible');
+  }, 2500);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Feature-detection banner                                           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Shows or hides the unsupported-browser banner.
+ */
+export function showUnsupportedBanner(show) {
+  const banner = document.getElementById('unsupported-banner');
+  if (banner) banner.hidden = !show;
+
+  const app = document.getElementById('app');
+  if (app) app.hidden = show;
+}
+```

@@ -1,0 +1,7 @@
+### Why This Pattern Matters
+
+By using a named bucket for our notes rather than dumping everything into the default storage origin, we gain three major advantages:
+
+1.  **Isolated Eviction**: We marked our `notes` bucket as `persisted: true`. Even if other parts of this origin (like a separate image cache or session data) are being evicted by the browser due to storage pressure, our critical user notes are guarded.
+2.  **Guaranteed Durability**: By opting into `durability: 'strict'`, we tell the browser to prioritize data integrity over write performance. This is crucial for note-taking apps where a power failure during a save operation could otherwise corrupt the entire IndexedDB database.
+3.  **Namespace Isolation**: The IndexedDB `notes-db` exists purely inside the `notes` bucket. This creates a clean namespace that doesn&apos;t collide with other databases on the same origin, making it easier to manage the lifecycle of different sets of data independently.

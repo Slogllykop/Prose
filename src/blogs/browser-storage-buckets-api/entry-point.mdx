@@ -1,0 +1,135 @@
+### 1. The Entry Point (`index.html`)
+
+We set up a clean structure with an "unsupported" banner that only shows if the Storage Buckets API is missing.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Offline-first note-taking app built with Chrome's Storage Buckets API" />
+  <title>Bucket Notes - Offline-First Notes</title>
+
+  <!-- Google Font: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="src/styles.css" />
+</head>
+<body>
+  <!-- ============================================================ -->
+  <!--  Unsupported Browser Banner                                   -->
+  <!-- ============================================================ -->
+  <div id="unsupported-banner" class="unsupported-banner" hidden>
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <h1>Browser Not Supported</h1>
+    <p>
+      This app uses the <strong>Storage Buckets API</strong>,
+      which requires <strong>Chrome 122+</strong> (or a Chromium-based browser
+      with the feature enabled).
+    </p>
+    <p>
+      Check availability on
+      <a href="https://developer.chrome.com/docs/web-platform/storage-buckets" target="_blank" rel="noopener" style="color: #6c63ff;">
+        Chrome for Developers
+      </a>.
+    </p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!--  Main App Shell                                               -->
+  <!-- ============================================================ -->
+  <div id="app" class="app" hidden>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <header class="sidebar__header">
+        <h1 class="sidebar__title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          Bucket Notes
+        </h1>
+        <div class="sidebar__actions">
+          <button id="btn-new" class="btn btn--primary" title="New note (Alt+N)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            New
+          </button>
+        </div>
+      </header>
+
+      <div id="note-list" class="note-list">
+        <!-- Rendered by JS -->
+      </div>
+    </aside>
+
+    <!-- Editor -->
+    <main class="editor">
+
+      <!-- Placeholder (no note selected) -->
+      <div id="editor-placeholder" class="editor__placeholder">
+        <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+        <p>Select a note or create a new one</p>
+        <p><kbd>Alt + N</kbd> to create &nbsp;·&nbsp; <kbd>Ctrl + S</kbd> to save</p>
+      </div>
+
+      <!-- Editor Content (hidden until a note is selected) -->
+      <div id="editor-content" class="editor__content" hidden>
+        <header class="editor__header">
+          <input
+            id="editor-title"
+            class="editor__title-input"
+            type="text"
+            placeholder="Note title…"
+            disabled
+            autocomplete="off"
+            spellcheck="true"
+          />
+          <button id="btn-save" class="btn" title="Save note (Ctrl+S)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/>
+              <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Save
+          </button>
+        </header>
+
+        <div class="editor__body">
+          <textarea
+            id="editor-body"
+            class="editor__textarea"
+            placeholder="Start writing…"
+            disabled
+            spellcheck="true"
+          ></textarea>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Status Bar -->
+  <footer id="status-bar" class="status-bar">
+    <span class="status-item">Initializing…</span>
+  </footer>
+
+  <!-- App Bootstrap -->
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
+```

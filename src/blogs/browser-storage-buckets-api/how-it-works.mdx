@@ -1,0 +1,146 @@
+## How Storage Buckets Actually Work
+
+The API lives at `navigator.storageBuckets` and requires a secure context (HTTPS or localhost). It works in both `Window` and `Worker` contexts.
+
+The full interface surface of the API looks like this:
+
+```typescript
+// StorageBucketManager - accessed via navigator.storageBuckets
+interface StorageBucketManager {
+  open(name: string, options?: StorageBucketOptions): Promise<StorageBucket>;
+  keys(): Promise<string[]>;
+  delete(name: string): Promise<void>;
+}
+
+interface StorageBucketOptions {
+  persisted?: boolean;   // default: false
+  quota?: number;        // in bytes; browser may impose a lower limit
+  expires?: number;      // DOMHighResTimeStamp (ms since Unix epoch)
+  durability?: 'relaxed' | 'strict'; // default: 'relaxed'
+}
+
+interface StorageBucket {
+  readonly name: string;
+
+  // Persistence control
+  persist(): Promise<boolean>;
+  persisted(): Promise<boolean>;
+
+  // Quota introspection
+  estimate(): Promise<StorageEstimate>;
+
+  // Expiry control
+  setExpires(expires: number): Promise<void>;
+  expires(): Promise<number | null>;
+
+  // Storage endpoints
+  readonly indexedDB: IDBFactory;
+  readonly caches: CacheStorage;
+  getDirectory(): Promise<FileSystemDirectoryHandle>;
+  readonly locks: LockManager;
+}
+```
+
+### Creating Buckets
+
+```javascript
+// A cache bucket: low priority, browser can evict freely
+const cacheBucket = await navigator.storageBuckets.open("thumbnail-cache", {
+  persisted: false,
+  durability: "relaxed",
+});
+
+// A critical bucket: persist through storage pressure, survive power loss
+const draftsBucket = await navigator.storageBuckets.open("unsaved-drafts", {
+  persisted: true,
+  durability: "strict",
+});
+```
+
+The `open()` call is idempotent. Calling it with the same name returns the existing bucket. The options you pass are *hints*, meaning the browser may not honor them, so you should always verify:
+
+```javascript
+if (await draftsBucket.persisted() !== true) {
+  console.warn("Browser declined persistence for drafts bucket");
+}
+```
+
+### Bucket Name Rules
+
+One small detail that can trip you up: bucket names are restricted to lowercase ASCII letters (`a-z`), digits (`0-9`), underscores, and hyphens. Names cannot start with `_` or `-`, and the maximum length is 64 characters. Any violation throws a `TypeError`. This matters if you are generating bucket names programmatically at runtime.
+
+### Durability Modes
+
+The `durability` option is a hint to the browser about how it should handle writes during unexpected power loss:
+
+- **`"strict"`** tries to flush writes to disk before acknowledging completion. This minimizes data loss on power failure but can be slower and harder on battery life.
+- **`"relaxed"`** may lose writes from the last few seconds if power is suddenly cut. Writes are faster, battery impact is lower, and the storage device experiences less wear.
+
+### Storage Policies at a Glance
+
+| Policy | Values | What It Controls |
+|:---|:---|:---|
+| `persisted` | `true` / `false` | Whether the bucket survives storage pressure eviction |
+| `durability` | `"strict"` / `"relaxed"` | Trade-off between write performance and power-failure safety |
+| `quota` | Number (bytes) | Upper bound on storage for this bucket |
+| `expires` | Timestamp (ms) | Auto-expiration date for the bucket&apos;s data |
+
+### Using Storage APIs Within a Bucket
+
+Every bucket exposes the same familiar storage APIs, just scoped to that bucket:
+
+```javascript
+// IndexedDB scoped to a specific bucket
+const db = await new Promise((resolve, reject) => {
+  const request = draftsBucket.indexedDB.open("documents", 1);
+  request.onupgradeneeded = (event) => {
+    const db = event.target.result;
+    db.createObjectStore("notes", { keyPath: "id" });
+  };
+  request.onsuccess = () => resolve(request.result);
+  request.onerror = () => reject(request.error);
+});
+
+// CacheStorage scoped to a specific bucket
+const cache = await cacheBucket.caches.open("images");
+
+// Origin Private File System scoped to a specific bucket
+const root = await draftsBucket.getDirectory();
+```
+
+This is the key insight: you are not learning a new storage API. You are using the same IndexedDB, CacheStorage, and OPFS you already know, just partitioned into independently managed buckets.
+
+### Deleting and Enumerating Buckets
+
+```javascript
+// Clean up a specific user's data on logout
+await navigator.storageBuckets.delete("user-session-42");
+
+// List all buckets for debugging
+const allBuckets = await navigator.storageBuckets.keys();
+console.log(allBuckets); // ["thumbnail-cache", "unsaved-drafts"]
+```
+
+When you delete a bucket, all IndexedDB databases and caches inside it are force-closed and wiped immediately.
+
+### Setting Quotas and Expiration
+
+```javascript
+// Cap recommendation data at 20 MB
+const recBucket = await navigator.storageBuckets.open("recommendations", {
+  quota: 20 * 1024 * 1024,
+});
+
+// Check how much space this bucket is using
+const estimate = await recBucket.estimate();
+console.log(`Using ${estimate.usage} of ${estimate.quota} bytes`);
+
+// Create a bucket that auto-expires in 14 days
+const twoWeeks = 14 * 24 * 60 * 60 * 1000;
+const newsBucket = await navigator.storageBuckets.open("breaking-news", {
+  expires: Date.now() + twoWeeks,
+});
+
+// Extend expiration if the user is still active
+await newsBucket.setExpires(Date.now() + twoWeeks);
+```

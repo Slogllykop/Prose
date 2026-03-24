@@ -1,0 +1,46 @@
+## Where This Falls Short: The Limitations
+
+### Browser Support Is Chromium Only
+
+As of March 2026, this API is supported in:
+
+- **Chrome 122+** and all Chromium-based browsers (**Edge 122+**, **Opera 108+**)
+- **Chrome for Android 145+**, **Samsung Internet 26+**
+
+And *not* supported in:
+
+- **Firefox** (no signal of implementation)
+- **Safari** (no signal of implementation)
+
+That is roughly 71% of global browser usage according to caniuse, but it means you cannot use this as your only storage strategy. You need a fallback path that uses the default single-bucket model for unsupported browsers.
+
+### Policies Are Hints, Not Guarantees
+
+When you pass `persisted: true`, the browser *may* decline. When you set a `quota`, the browser *may* ignore it. The spec is explicit: all policies are advisory. You must always verify after creation:
+
+```javascript
+const bucket = await navigator.storageBuckets.open("critical-data", {
+  persisted: true,
+  durability: "strict",
+  quota: 50 * 1024 * 1024,
+});
+
+// All three of these could return values different from what you requested
+const actualPersistence = await bucket.persisted();
+const actualDurability = await bucket.durability();
+const actualQuota = (await bucket.estimate()).quota;
+```
+
+This makes Storage Buckets a *preference system* rather than a *contract*. Cloud storage buckets have SLAs with defined durability (typically 99.999999999%). Browser storage buckets have best-effort hints.
+
+### No Integration with DOM Storage
+
+`localStorage` and `sessionStorage` are explicitly excluded from the Storage Buckets API. If you are using these APIs (and many apps still are), you cannot put them in a bucket. This is by design since DOM Storage does not follow the same async patterns, but it still limits the API&apos;s reach for apps that depend heavily on synchronous storage.
+
+### No Cross-Tab Coordination Built In
+
+While Web Locks are available per bucket (`bucket.locks`), there is no built-in event system for coordinating bucket lifecycle across tabs. If Tab A deletes a bucket, Tab B&apos;s references to that bucket&apos;s IndexedDB connections will break with opaque errors. You need to build your own coordination layer using BroadcastChannel or shared workers.
+
+### Third-Party Context Behavior Is Undefined
+
+The spec explicitly defers behavior in third-party (iframe) contexts. If your app is embedded in other sites, Storage Buckets behavior is not specified and may vary across browsers.

@@ -1,0 +1,23 @@
+## Feature Detection and Progressive Enhancement
+
+Until the API has universal support, wrap it in feature detection:
+
+```javascript
+async function getStorageBucket(name, options) {
+  if ("storageBuckets" in navigator) {
+    return navigator.storageBuckets.open(name, options);
+  }
+
+  // Fallback: return a shim that exposes the default storage APIs
+  return {
+    indexedDB: globalThis.indexedDB,
+    caches: globalThis.caches,
+    getDirectory: () => navigator.storage.getDirectory(),
+    estimate: () => navigator.storage.estimate(),
+    persisted: async () => navigator.storage.persisted(),
+    durability: async () => "strict",
+  };
+}
+```
+
+This shim gives you a single code path. On Chromium, you get real bucket isolation. On other browsers, everything falls back to the default bucket. Your app works everywhere, but *works better* on browsers that support the API.

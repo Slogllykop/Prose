@@ -1,0 +1,33 @@
+## The Future of Storage Buckets
+
+The API is in Chromium and shipping, but the spec is still evolving under the [WICG](https://github.com/WICG/storage-buckets). Here is what is on the horizon:
+
+### Service Worker Integration
+
+The spec proposes letting you register service workers scoped to a bucket. When a bucket is evicted, its service workers are also unregistered. This pairs naturally with offline-first architectures: if the cached data is gone, there is no point waking up the service worker to serve it.
+
+```javascript
+// Proposed API - not yet shipped
+const registration = await inboxBucket.serviceWorker.register(
+  "/inbox-sw.js",
+  { scope: "/inbox" }
+);
+```
+
+### Clear-Site-Data Header Integration
+
+The spec proposes extending the `Clear-Site-Data` HTTP header to target individual buckets:
+
+```
+Clear-Site-Data: "storage:user-session-42"
+```
+
+This would let servers trigger surgical cleanup of specific buckets, rather than the current all-or-nothing “storage” directive.
+
+### Broader Browser Adoption
+
+The biggest question mark is whether Firefox and Safari will implement this API. Mozilla has not formally signaled opposition, but there has been no active development. Apple&apos;s WebKit team has been historically conservative about storage APIs. Without broader adoption, developers will continue needing polyfill strategies.
+
+### Potential Standardization
+
+The API is currently a WICG draft. Moving it through the W3C standardization track would signal broader commitment and increase the likelihood of cross-browser support.

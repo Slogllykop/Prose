@@ -1,0 +1,20 @@
+## This Is Not Cloud Storage Buckets
+
+The name "bucket" invites comparisons to S3, Google Cloud Storage, or Azure Blob Storage. Resist that urge. Here is how they differ fundamentally:
+
+| Aspect | Browser Storage Buckets | Cloud Storage Buckets (S3, GCS) |
+|:---|:---|:---|
+| **Location** | User&apos;s device | Remote server |
+| **Scope** | Single origin, single device | Globally accessible |
+| **Data model** | Namespace over browser APIs | Object/blob storage (HTTP) |
+| **Persistence** | Best-effort hints only | Guaranteed (11 nines) |
+| **Eviction** | Browser may evict under pressure | Persists until deleted |
+| **Access control** | Same-origin policy only | IAM, Signed URLs, ACLs |
+| **Capacity** | Browser quota (hundreds of MB) | Effectively unlimited |
+| **Networking** | Entirely local (offline-capable) | Requires network |
+| **Cost** | Free (device storage) | Pay per GB and request |
+| **Survives Data Clear** | No | Yes |
+
+**Browser Storage Buckets are about organizing client-side data with eviction priorities.** Cloud storage buckets are about storing and serving objects at scale across the internet. They solve completely different problems.
+
+The one conceptual overlap is *lifecycle management*. Both let you set expiration policies on data. But in cloud storage, expiration is a cost optimization. In browser storage, expiration is about hygiene and preventing stale data from consuming the user&apos;s disk.

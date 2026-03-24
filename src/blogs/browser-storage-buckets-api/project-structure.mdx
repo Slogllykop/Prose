@@ -1,0 +1,15 @@
+### Project Structure
+
+We&apos;ll organize the project to separate storage logic from UI orchestration:
+
+```
+Storage-Bucket-API-Example/
+├── index.html               ← entry point (served by any HTTP server)
+└── src/
+    ├── styles.css           ← all styling
+    ├── app.js               ← bootstrap, event wiring
+    ├── ui.js                ← DOM rendering helpers
+    └── storage/
+        ├── bucket-layer.js  ← Storage Bucket abstraction
+        └── note-store.js    ← IndexedDB CRUD scoped to bucket
+```
