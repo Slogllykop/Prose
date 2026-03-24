@@ -47,7 +47,7 @@ pnpm run clean
 ```
 
 ### 5. Create Your Content
-Create your own blog posts by making new folders inside the `src/blogs` directory. Inside your new folder, add a `blog.mdx` file. Define the YAML frontmatter with your title, description, date, and updated fields. If you want a hero cover, copy a `hero.png` into this newly created folder which renders nicely into a sixteen by seven aspect ratio.
+Create your own blog posts by making new folders inside the `src/blogs` directory. Inside your new folder, add a `blog.mdx` file. Define the YAML frontmatter with your title, description, date, and updated fields. If you want a hero cover, copy a `hero.png` into this newly created folder which renders at a 16:7 aspect ratio (recommended dimensions: 700x306 pixels).
 
 ### 6. Development and Review
 Check your changes locally by starting the development server:

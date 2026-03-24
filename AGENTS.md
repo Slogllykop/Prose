@@ -11,7 +11,7 @@
 - Blog content is driven entirely by the `src/blogs/` directory.
 - Each blog is a folder inside `src/blogs/` named as the slug.
 - Every blog folder must contain an `.mdx` file (e.g. `blog.mdx`).
-- A `hero.png` (or `.jpg`, etc.) can be placed in the blog folder to be used as the hero image (rendered at 16:7 aspect ratio).
+- A `hero.png` (or `.jpg`, etc.) can be placed in the blog folder to be used as the hero image (rendered at 16:7 aspect ratio, recommended dimensions: 700x306 pixels).
 - Blog parsing and metadata logic is located in `src/lib/blog.ts`.
 - MDX components (headings, pre/code with copy button) are customized in `src/mdx-components.tsx`.
 - The `src/blogs/example` post is excluded from search engine indexing and the main blog listing. It is built for formatting reference (`/example`).
