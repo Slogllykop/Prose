@@ -162,6 +162,11 @@
     @apply rounded-sm border border-border bg-muted px-1.5 py-0.5 text-sm font-normal;
 }
 
+/* Plain code blocks (no language specified, no Shiki processing) */
+.prose pre:not(.shiki) {
+    @apply overflow-x-auto rounded-lg border border-border bg-muted px-4 py-4 text-sm leading-relaxed text-zinc-900 dark:text-zinc-200;
+}
+
 /* Syntax highlighting - @shikijs/rehype */
 .shiki {
     @apply overflow-x-auto rounded-lg border border-border bg-muted px-4 py-4 text-sm leading-relaxed;

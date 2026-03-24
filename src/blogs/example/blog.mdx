@@ -122,6 +122,20 @@ You can add [links to external sites](https://nextjs.org/) very easily.
 
 If you place a `hero.png` (or `.jpg`, `.webp`) in the blog folder alongside `blog.mdx`, it will automatically be picked up as the hero image and displayed at the top of the post at a 16:7 aspect ratio (recommended dimensions: 700x306 pixels).
 
+### Inline Images
+
+Place your images in an `images/` subfolder inside your blog folder. Then reference them with a simple relative path:
+
+![A standard inline image](images/example.webp)
+
+For more control, use the `BlogImage` component with optional `width`, `height`, and `align` props:
+
+<BlogImage src="images/example.webp" alt="Centered image with custom width" width={400} align="center" />
+
+<BlogImage src="images/example.webp" alt="Right-aligned image with custom size" width={300} height={200} align="right" />
+
+Available `align` values are `left` (default), `center`, and `right`.
+
 ---
 
 ## Custom Layouts and MDX Magic

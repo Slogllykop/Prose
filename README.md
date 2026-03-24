@@ -49,6 +49,23 @@ pnpm run clean
 ### 5. Create Your Content
 Create your own blog posts by making new folders inside the `src/blogs` directory. Inside your new folder, add a `blog.mdx` file. Define the YAML frontmatter with your title, description, date, and updated fields. If you want a hero cover, copy a `hero.png` into this newly created folder which renders at a 16:7 aspect ratio (recommended dimensions: 700x306 pixels).
 
+To include inline images in your post, create an `images` subfolder inside your blog folder and place your image files there. Reference them in your MDX using the standard relative path:
+```mdx
+![Descriptive alt text](images/your-image.png)
+```
+
+For advanced control (width, height, and alignment), use the `<BlogImage>` component:
+```mdx
+<BlogImage 
+  src="images/your-image.png" 
+  alt="Descriptive alt text" 
+  width={600} 
+  align="center" 
+/>
+```
+Available `align` options: `left` (default), `center`, and `right`.
+
+
 ### 6. Development and Review
 Check your changes locally by starting the development server:
 ```bash

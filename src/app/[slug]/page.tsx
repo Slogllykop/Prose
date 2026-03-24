@@ -6,6 +6,7 @@ import {
     IconClock,
     IconRefresh,
 } from "@tabler/icons-react";
+import type { MDXComponents } from "mdx/types";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -25,6 +26,65 @@ import {
 } from "@/lib/constants";
 
 const BLOGS_DIR = path.join(process.cwd(), "src", "blogs");
+
+const ALIGN_CLASSES: Record<string, string> = {
+    left: "mr-auto",
+    center: "mx-auto",
+    right: "ml-auto",
+};
+
+function createBlogComponents(slug: string): MDXComponents {
+    function rewriteSrc(src: string): string {
+        if (src.startsWith("images/")) {
+            return `/api/v1/blog-assets/${slug}/${src}`;
+        }
+        return src;
+    }
+
+    return {
+        // Handles standard markdown images: ![alt](images/photo.png)
+        img: (props) => {
+            const src = rewriteSrc((props.src as string) || "");
+            return (
+                // biome-ignore lint/a11y/useAltText: alt is passed through from MDX content
+                // biome-ignore lint/performance/noImgElement: required for dynamic MDX image path rewriting
+                <img {...props} src={src} className="rounded-lg" />
+            );
+        },
+        // Advanced image component for JSX usage in MDX with width, height, align support:
+        // <BlogImage src="images/photo.png" alt="Description" width={400} align="center" />
+        BlogImage: (props: {
+            src: string;
+            alt?: string;
+            width?: number | string;
+            height?: number | string;
+            align?: "left" | "center" | "right";
+            className?: string;
+        }) => {
+            const src = rewriteSrc(props.src || "");
+            const alignClass = props.align
+                ? ALIGN_CLASSES[props.align] || ""
+                : "";
+            const className =
+                `block rounded-lg ${alignClass} ${props.className || ""}`.trim();
+
+            return (
+                // biome-ignore lint/performance/noImgElement: required for dynamic MDX image path rewriting
+                <img
+                    src={src}
+                    alt={props.alt}
+                    width={props.width}
+                    height={props.height}
+                    className={className}
+                    style={{
+                        width: props.width ? `${props.width}px` : undefined,
+                        height: props.height ? `${props.height}px` : undefined,
+                    }}
+                />
+            );
+        },
+    };
+}
 
 export const dynamicParams = false;
 
@@ -233,7 +293,9 @@ export default async function BlogPage(props: {
                         </div>
 
                         <div className="prose prose-zinc dark:prose-invert max-w-none prose-pre:bg-muted prose-pre:p-0 prose-li:text-justify prose-p:text-justify prose-headings:font-semibold prose-headings:tracking-tight prose-a:underline prose-a:underline-offset-4">
-                            <MdxContent />
+                            <MdxContent
+                                components={createBlogComponents(slug)}
+                            />
                         </div>
                     </article>
                     <aside className="sticky top-24 hidden h-fit lg:block">
