@@ -1,5 +1,5 @@
 import type { MDXComponents } from "mdx/types";
-import { CopyButton } from "@/components/copy-button";
+import { CollapsibleCodeBlock } from "@/components/collapsible-code-block";
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
     return {
@@ -40,12 +40,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
                 {...props}
             />
         ),
-        pre: (props) => (
-            <div className="group relative my-4">
-                <pre {...props} className={`${props.className || ""} m-0`} />
-                <CopyButton />
-            </div>
-        ),
+        pre: (props) => <CollapsibleCodeBlock {...props} />,
         table: ({
             className,
             ...props
