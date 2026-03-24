@@ -39,6 +39,7 @@ export async function generateMetadata(props: {
     const blog = getBlogBySlug(slug);
 
     if (!blog) return { title: "Not Found" };
+    if ("error" in blog) return { title: "Configuration Error" };
 
     const isExample = slug === EXAMPLE_SLUG;
     const blogUrl = `${SITE_URL}/${slug}`;
@@ -83,6 +84,18 @@ export default async function BlogPage(props: {
     const blog = getBlogBySlug(slug);
 
     if (!blog) notFound();
+    if ("error" in blog) {
+        return (
+            <main className="mx-auto flex w-full max-w-7xl flex-col items-center justify-center px-4 py-24 text-center">
+                <div className="w-full max-w-2xl rounded-lg border border-destructive/20 bg-destructive/10 p-8 text-destructive">
+                    <h1 className="mb-4 flex items-center justify-center gap-2 font-bold text-2xl">
+                        Blog Configuration Error
+                    </h1>
+                    <p className="font-medium">{blog.error}</p>
+                </div>
+            </main>
+        );
+    }
 
     const { default: MdxContent } = await import(`@/blogs/${slug}/blog.mdx`);
 
@@ -101,7 +114,10 @@ export default async function BlogPage(props: {
     const heroPath = blog.heroImage
         ? path.join(BLOGS_DIR, slug, blog.heroImage)
         : null;
-    const hasHero = heroPath && fs.existsSync(heroPath);
+    const hasCustomHero = heroPath && fs.existsSync(heroPath);
+    const heroToDisplay = hasCustomHero
+        ? `/api/v1/blog-assets/${slug}/${blog.heroImage}`
+        : "/hero.png";
 
     const blogUrl = `${SITE_URL}/${slug}`;
 
@@ -129,9 +145,7 @@ export default async function BlogPage(props: {
             "@type": "WebPage",
             "@id": blogUrl,
         },
-        ...(hasHero && {
-            image: `${SITE_URL}/api/v1/blog-assets/${slug}/${blog.heroImage}`,
-        }),
+        image: `${SITE_URL}${heroToDisplay}`,
         wordCount: blog.readingTime * 200,
         isPartOf: {
             "@type": "WebSite",
@@ -207,18 +221,16 @@ export default async function BlogPage(props: {
                             </div>
                         </div>
 
-                        {hasHero && (
-                            <div className="mb-8 overflow-hidden rounded-lg border border-border">
-                                <Image
-                                    src={`/api/v1/blog-assets/${slug}/${blog.heroImage}`}
-                                    alt={`Hero image for ${blog.title}`}
-                                    width={1200}
-                                    height={630}
-                                    className="aspect-16/7 w-full object-cover"
-                                    priority
-                                />
-                            </div>
-                        )}
+                        <div className="mb-8 overflow-hidden rounded-lg border border-border bg-muted">
+                            <Image
+                                src={heroToDisplay}
+                                alt={`Hero image for ${blog.title}`}
+                                width={1200}
+                                height={630}
+                                className="aspect-16/7 w-full object-cover"
+                                priority
+                            />
+                        </div>
 
                         <div className="prose prose-zinc dark:prose-invert max-w-none prose-pre:bg-muted prose-pre:p-0 prose-li:text-justify prose-p:text-justify prose-headings:font-semibold prose-headings:tracking-tight prose-a:underline prose-a:underline-offset-4">
                             <MdxContent />

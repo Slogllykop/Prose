@@ -12,6 +12,10 @@ export interface HeadingMeta {
     slug: string;
 }
 
+export interface BlogError {
+    error: string;
+}
+
 export interface BlogMeta {
     slug: string;
     title: string;
@@ -46,27 +50,31 @@ export function calculateReadingTime(content: string): number {
 }
 
 /**
- * Finds the MDX file inside a blog folder.
- * Looks for any .mdx file (e.g., blog.mdx, index.mdx, etc.)
- */
-function findMdxFile(folderPath: string): string | null {
-    const files = fs.readdirSync(folderPath);
-    const mdxFile = files.find((f) => f.endsWith(".mdx"));
-    return mdxFile ? path.join(folderPath, mdxFile) : null;
-}
-
-/**
  * Gets blog metadata for a single slug.
  */
-export function getBlogBySlug(slug: string): BlogMeta | null {
+export function getBlogBySlug(slug: string): BlogMeta | BlogError | null {
     const folderPath = path.join(BLOGS_DIR, slug);
 
     if (!fs.existsSync(folderPath) || !fs.statSync(folderPath).isDirectory()) {
         return null;
     }
 
-    const mdxPath = findMdxFile(folderPath);
-    if (!mdxPath) return null;
+    const files = fs.readdirSync(folderPath);
+    const hasBlogMdx = files.includes("blog.mdx");
+    const anyMdx = files.find((f) => f.endsWith(".mdx"));
+
+    if (!hasBlogMdx) {
+        if (anyMdx) {
+            return {
+                error: `You have a file named "${anyMdx}" in the blog folder, but it must be named "blog.mdx". Please rename it.`,
+            };
+        }
+        return {
+            error: `No "blog.mdx" file found in the directory "src/blogs/${slug}". Please create one.`,
+        };
+    }
+
+    const mdxPath = path.join(folderPath, "blog.mdx");
 
     const fileContent = fs.readFileSync(mdxPath, "utf-8");
     const { data: frontmatter, content } = matter(fileContent);
@@ -120,10 +128,7 @@ export function getAllBlogSlugs(): string[] {
 
     return fs.readdirSync(BLOGS_DIR).filter((name) => {
         const fullPath = path.join(BLOGS_DIR, name);
-        return (
-            fs.statSync(fullPath).isDirectory() &&
-            findMdxFile(fullPath) !== null
-        );
+        return fs.statSync(fullPath).isDirectory();
     });
 }
 
@@ -137,7 +142,7 @@ export function getAllBlogs(): BlogMeta[] {
     return slugs
         .filter((slug) => slug !== EXAMPLE_SLUG)
         .map((slug) => getBlogBySlug(slug))
-        .filter((blog): blog is BlogMeta => blog !== null)
+        .filter((blog): blog is BlogMeta => blog !== null && !("error" in blog))
         .sort(
             (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
         );

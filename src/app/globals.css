@@ -50,24 +50,24 @@
 }
 
 :root {
-    --background: oklch(1 0 0);
+    --background: oklch(0.97 0.01 80);
     --foreground: oklch(0.141 0.005 285.823);
-    --card: oklch(1 0 0);
+    --card: oklch(0.98 0.01 80);
     --card-foreground: oklch(0.141 0.005 285.823);
-    --popover: oklch(1 0 0);
+    --popover: oklch(0.98 0.01 80);
     --popover-foreground: oklch(0.141 0.005 285.823);
     --primary: oklch(0.21 0.006 285.885);
     --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.967 0.001 286.375);
+    --secondary: oklch(0.9 0.01 80);
     --secondary-foreground: oklch(0.21 0.006 285.885);
-    --muted: oklch(0.967 0.001 286.375);
+    --muted: oklch(0.92 0.01 80);
     --muted-foreground: oklch(0.552 0.016 285.938);
-    --accent: oklch(0.967 0.001 286.375);
+    --accent: oklch(0.92 0.01 80);
     --accent-foreground: oklch(0.21 0.006 285.885);
     --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.92 0.004 286.32);
-    --input: oklch(0.92 0.004 286.32);
-    --ring: oklch(0.705 0.015 286.067);
+    --border: oklch(0.75 0.01 80);
+    --input: oklch(0.75 0.01 80);
+    --ring: oklch(0.6 0.01 80);
     --chart-1: oklch(0.871 0.006 286.286);
     --chart-2: oklch(0.552 0.016 285.938);
     --chart-3: oklch(0.442 0.017 285.786);
@@ -125,12 +125,44 @@
     body {
         @apply bg-background text-foreground;
     }
+    html:not(.dark) body {
+        background-image: url("/paper-transparent.png");
+        background-repeat: repeat;
+        background-blend-mode: multiply;
+    }
     html {
         @apply font-sans;
         scroll-behavior: smooth;
     }
     button {
         cursor: pointer;
+    }
+
+    /* Disable backticks in inline code */
+    .prose code::before,
+    .prose code::after {
+        content: none;
+    }
+
+    /* Enhance light mode MDX markdown contrast */
+    html:not(.dark) .prose hr {
+        border-color: oklch(0.7 0.01 80);
+    }
+    html:not(.dark) .prose blockquote {
+        border-left-color: oklch(0.6 0.01 80);
+        color: oklch(0.35 0.01 80);
+    }
+    html:not(.dark) .prose li::marker {
+        color: oklch(0.45 0.01 80);
+    }
+    html:not(.dark) .prose th,
+    html:not(.dark) .prose td,
+    html:not(.dark) .prose thead,
+    html:not(.dark) .prose tbody tr {
+        border-color: oklch(0.75 0.01 80);
+    }
+    html:not(.dark) .prose table {
+        border-color: oklch(0.75 0.01 80);
     }
 }
 

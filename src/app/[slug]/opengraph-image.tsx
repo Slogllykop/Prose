@@ -12,7 +12,7 @@ export default async function OgImage(props: {
 }) {
     const { slug } = await props.params;
     const blog = getBlogBySlug(slug);
-    const title = blog?.title || "Blog Post";
+    const title = !blog || "error" in blog ? "Blog Post" : blog.title;
 
     const logoSrc = getPublicFileAsBase64("logo.png");
     const profileSrc = getPublicFileAsBase64("profile.png");
