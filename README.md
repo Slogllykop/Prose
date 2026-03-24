@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📝 Prose Blogging Platform
 
-## Getting Started
+Prose is a modern, lightweight, and fully file based blogging platform. It is built for developers who want to write content in MDX and have it served instantly without relying on a database. Enjoy a seamless writing experience powered by the latest web technologies.
 
-First, run the development server:
+## ✨ Features
 
+* **File Based Routing:** Every blog is a folder containing an MDX file.
+* **Markdown and MDX:** Write content with React components seamlessly.
+* **Outstanding Typography:** Beautiful, automatic text formatting provided out of the box.
+* **Dynamic Images:** Serve your hero images directly from your blog folders.
+* **Code Highlighting:** Professional snippet styling using Shiki.
+* **API Access:** Includes public data endpoints supporting CORS and caching.
+
+## 🛠️ Project Stack
+
+Our architecture is crafted using the best modern tools available:
+
+* **Frontend:** Next.js 16 featuring App Router alongside React 19 and TypeScript.
+* **Styling:** We use Tailwind v4 bundled with the official typography plugin. Our user interfaces are built with Shadcn UI components and Tabler Icons.
+* **Content Parsing:** MDX compilation is enhanced using gray matter for YAML frontmatter extraction, alongside plugins like rehype slug and remark gfm.
+* **Code Quality:** Local formatting and linting are maintained entirely by Biomejs.
+
+## 🚀 How to Self Host
+
+Hosting this project is straightforward. Follow these steps to get your own version running locally or on a production server:
+
+### 1. Clone the Repository
+Clone the repository to your local machine or server to get started:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/Slogllykop/Prose.git
+cd Prose
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install Dependencies
+Make sure you have `pnpm` installed fully. Install all required dependencies using the following command:
+```bash
+pnpm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Personalize Site Data
+All of your global metadata, branding, and author details reside in the constants file located at `src/lib/constants.ts`. Update this file with your own site title, site description, author name, and SEO keywords to truly make the blog yours. 
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Remove Dummy Content
+To delete the existing test content, we provide a clean script. Run the custom Node.js script to delete every blog folder except the example one:
+```bash
+pnpm run clean
+```
 
-## Learn More
+### 5. Create Your Content
+Create your own blog posts by making new folders inside the `src/blogs` directory. Inside your new folder, add a `blog.mdx` file. Define the YAML frontmatter with your title, description, date, and updated fields. If you want a hero cover, copy a `hero.png` into this newly created folder which renders nicely into a sixteen by seven aspect ratio.
 
-To learn more about Next.js, take a look at the following resources:
+### 6. Development and Review
+Check your changes locally by starting the development server:
+```bash
+pnpm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 7. Build and Deploy
+When you are ready, build the project for production:
+```bash
+pnpm run build
+```
+Start the production server using:
+```bash
+pnpm run start
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+You can deploy this project easily to standard node environments by connecting your repository and setting the build command to `pnpm run build`.
 
-## Deploy on Vercel
+## 🧹 Code Maintenance
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Remember to correctly format the code and sort Tailwind classes nicely before you commit any changes to version control. Simply run:
+```bash
+pnpm run format
+```
