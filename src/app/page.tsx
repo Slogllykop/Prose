@@ -24,7 +24,7 @@ import {
 } from "@/lib/constants";
 
 export const metadata: Metadata = {
-    title: `${AUTHOR_NAME} - Blog`,
+    title: `${AUTHOR_NAME} - Blogs`,
     description: SITE_DESCRIPTION,
     keywords: SEO_KEYWORDS,
     alternates: {
@@ -71,7 +71,7 @@ export default function Home() {
             },
             {
                 "@type": "CollectionPage",
-                name: `${AUTHOR_NAME} - Blog`,
+                name: `${AUTHOR_NAME} - Blogs`,
                 description: SITE_DESCRIPTION,
                 url: SITE_URL,
                 isPartOf: {
