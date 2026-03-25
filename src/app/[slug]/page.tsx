@@ -136,35 +136,57 @@ export default async function BlogPage(props: {
 
     const jsonLd = {
         "@context": "https://schema.org",
-        "@type": "BlogPosting",
-        headline: blog.title,
-        description: blog.description || `${blog.title} by ${AUTHOR_NAME}`,
-        url: blogUrl,
-        datePublished: blog.date,
-        dateModified: blog.updated,
-        author: {
-            "@type": "Person",
-            name: AUTHOR_NAME,
-            url: AUTHOR_URL,
-            image: `${SITE_URL}${AUTHOR_IMAGE}`,
-        },
-        publisher: {
-            "@type": "Person",
-            name: AUTHOR_NAME,
-            url: AUTHOR_URL,
-            image: `${SITE_URL}${AUTHOR_IMAGE}`,
-        },
-        mainEntityOfPage: {
-            "@type": "WebPage",
-            "@id": blogUrl,
-        },
-        image: `${SITE_URL}${heroToDisplay}`,
-        wordCount: blog.readingTime * 200,
-        isPartOf: {
-            "@type": "WebSite",
-            name: SITE_TITLE,
-            url: SITE_URL,
-        },
+        "@graph": [
+            {
+                "@type": "BlogPosting",
+                headline: blog.title,
+                description:
+                    blog.description || `${blog.title} by ${AUTHOR_NAME}`,
+                url: blogUrl,
+                datePublished: blog.date,
+                dateModified: blog.updated,
+                author: {
+                    "@type": "Person",
+                    name: AUTHOR_NAME,
+                    url: AUTHOR_URL,
+                    image: `${SITE_URL}${AUTHOR_IMAGE}`,
+                },
+                publisher: {
+                    "@type": "Person",
+                    name: AUTHOR_NAME,
+                    url: AUTHOR_URL,
+                    image: `${SITE_URL}${AUTHOR_IMAGE}`,
+                },
+                mainEntityOfPage: {
+                    "@type": "WebPage",
+                    "@id": blogUrl,
+                },
+                image: `${SITE_URL}${heroToDisplay}`,
+                wordCount: blog.readingTime * 200,
+                isPartOf: {
+                    "@type": "WebSite",
+                    name: SITE_TITLE,
+                    url: SITE_URL,
+                },
+            },
+            {
+                "@type": "BreadcrumbList",
+                itemListElement: [
+                    {
+                        "@type": "ListItem",
+                        position: 1,
+                        name: "Home",
+                        item: SITE_URL,
+                    },
+                    {
+                        "@type": "ListItem",
+                        position: 2,
+                        name: blog.title,
+                        item: blogUrl,
+                    },
+                ],
+            },
+        ],
     };
 
     return (

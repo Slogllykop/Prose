@@ -1,6 +1,6 @@
 export const SITE_TITLE = "Prose";
 export const SITE_DESCRIPTION =
-    "A self-hostable, MDX-based blogging platform. Clean writing, beautiful reading.";
+    "The personal blogs of Indraneel Sinare, a Software Engineer, Designer, and Writer. Technical deep dives, design insights, and reflections on building software with craft.";
 
 export const SITE_URL = "https://blog.isdevs.cv";
 

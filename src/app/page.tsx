@@ -25,21 +25,21 @@ import {
 
 export const metadata: Metadata = {
     title: `${AUTHOR_NAME} - Blog`,
-    description: `Read blog posts by ${AUTHOR_NAME}. ${SITE_DESCRIPTION}`,
+    description: SITE_DESCRIPTION,
     keywords: SEO_KEYWORDS,
     alternates: {
         canonical: SITE_URL,
     },
     openGraph: {
         title: `${AUTHOR_NAME} - Blog | ${SITE_TITLE}`,
-        description: `Read blog posts by ${AUTHOR_NAME}. ${SITE_DESCRIPTION}`,
+        description: SITE_DESCRIPTION,
         url: SITE_URL,
         type: "website",
     },
     twitter: {
         card: "summary_large_image",
         title: `${AUTHOR_NAME} - Blog | ${SITE_TITLE}`,
-        description: `Read blog posts by ${AUTHOR_NAME}. ${SITE_DESCRIPTION}`,
+        description: SITE_DESCRIPTION,
     },
 };
 
@@ -72,7 +72,7 @@ export default function Home() {
             {
                 "@type": "CollectionPage",
                 name: `${AUTHOR_NAME} - Blog`,
-                description: `Read blog posts by ${AUTHOR_NAME}. ${SITE_DESCRIPTION}`,
+                description: SITE_DESCRIPTION,
                 url: SITE_URL,
                 isPartOf: {
                     "@type": "WebSite",
