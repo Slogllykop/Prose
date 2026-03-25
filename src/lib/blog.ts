@@ -28,8 +28,52 @@ export interface BlogMeta {
 }
 
 /**
+ * Converts a folder name to a URL-safe slug.
+ * Trims, lowercases, replaces spaces/underscores with hyphens,
+ * collapses consecutive hyphens, and strips non-alphanumeric characters.
+ */
+export function folderNameToSlug(folderName: string): string {
+    return folderName
+        .trim()
+        .toLowerCase()
+        .replace(/[\s_]+/g, "-")
+        .replace(/[^a-z0-9-]/g, "")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+}
+
+/**
+ * Resolves a slug back to the actual folder name on disk.
+ * Tries an exact match first, then checks slugified folder names.
+ * Returns null if no matching folder is found.
+ */
+export function resolveSlugToFolder(slug: string): string | null {
+    if (!fs.existsSync(BLOGS_DIR)) return null;
+
+    // Exact match (folder name is already a valid slug)
+    const exactPath = path.join(BLOGS_DIR, slug);
+    if (fs.existsSync(exactPath) && fs.statSync(exactPath).isDirectory()) {
+        return slug;
+    }
+
+    // Search by slugified folder name
+    const folders = fs.readdirSync(BLOGS_DIR).filter((name) => {
+        const fullPath = path.join(BLOGS_DIR, name);
+        return fs.statSync(fullPath).isDirectory();
+    });
+
+    for (const folder of folders) {
+        if (folderNameToSlug(folder) === slug) {
+            return folder;
+        }
+    }
+
+    return null;
+}
+
+/**
  * Formats a folder name into a human-readable title.
- * Converts hyphens/underscores to spaces and title-cases each word.
+ * Converts hyphens/underscores/spaces to spaces and title-cases each word.
  */
 function formatTitle(folderName: string): string {
     return folderName
@@ -53,11 +97,15 @@ export function calculateReadingTime(content: string): number {
  * Gets blog metadata for a single slug.
  */
 export function getBlogBySlug(slug: string): BlogMeta | BlogError | null {
-    const folderPath = path.join(BLOGS_DIR, slug);
+    const folderName = resolveSlugToFolder(slug);
+    if (!folderName) return null;
+
+    const folderPath = path.join(BLOGS_DIR, folderName);
 
     if (!fs.existsSync(folderPath) || !fs.statSync(folderPath).isDirectory()) {
         return null;
     }
+    const normalizedSlug = folderNameToSlug(folderName);
 
     const files = fs.readdirSync(folderPath);
     const hasBlogMdx = files.includes("blog.mdx");
@@ -70,7 +118,7 @@ export function getBlogBySlug(slug: string): BlogMeta | BlogError | null {
             };
         }
         return {
-            error: `No "blog.mdx" file found in the directory "src/blogs/${slug}". Please create one.`,
+            error: `No "blog.mdx" file found in the directory "src/blogs/${folderName}". Please create one.`,
         };
     }
 
@@ -130,8 +178,8 @@ export function getBlogBySlug(slug: string): BlogMeta | BlogError | null {
         .filter((f) => /^hero\.(png|jpg|jpeg|webp|avif)$/i.test(f));
 
     return {
-        slug,
-        title: (frontmatter.title as string) || formatTitle(slug),
+        slug: normalizedSlug,
+        title: (frontmatter.title as string) || formatTitle(folderName),
         description: (frontmatter.description as string) || "",
         date,
         updated,
@@ -147,10 +195,13 @@ export function getBlogBySlug(slug: string): BlogMeta | BlogError | null {
 export function getAllBlogSlugs(): string[] {
     if (!fs.existsSync(BLOGS_DIR)) return [];
 
-    return fs.readdirSync(BLOGS_DIR).filter((name) => {
-        const fullPath = path.join(BLOGS_DIR, name);
-        return fs.statSync(fullPath).isDirectory();
-    });
+    return fs
+        .readdirSync(BLOGS_DIR)
+        .filter((name) => {
+            const fullPath = path.join(BLOGS_DIR, name);
+            return fs.statSync(fullPath).isDirectory();
+        })
+        .map((name) => folderNameToSlug(name));
 }
 
 /**

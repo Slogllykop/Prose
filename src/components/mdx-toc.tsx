@@ -110,15 +110,18 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
             <p className="font-semibold text-foreground text-xl tracking-tight">
                 On this page
             </p>
-            <div ref={containerRef} className="relative flex-1 overflow-hidden">
-                {/* Top fade gradient */}
-                <div
-                    className={cn(
-                        "pointer-events-none absolute inset-x-0 top-0 z-10 h-8 bg-linear-to-b from-background to-transparent transition-opacity duration-300",
-                        showTopFade ? "opacity-100" : "opacity-0",
-                    )}
-                />
-
+            <div
+                ref={containerRef}
+                className="relative flex-1 overflow-hidden"
+                style={{
+                    maskImage: `linear-gradient(to bottom, 
+                        ${showTopFade ? "transparent" : "black"} 0%, 
+                        black 2rem, 
+                        black calc(100% - 2rem), 
+                        ${showBottomFade ? "transparent" : "black"} 100%
+                    )`,
+                }}
+            >
                 <ul
                     ref={listRef}
                     className="space-y-2.5 text-sm transition-transform duration-300 ease-out md:space-y-2"
@@ -178,14 +181,6 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
                         </li>
                     ))}
                 </ul>
-
-                {/* Bottom fade gradient */}
-                <div
-                    className={cn(
-                        "pointer-events-none absolute inset-x-0 bottom-0 z-10 h-8 bg-linear-to-t from-background to-transparent transition-opacity duration-300",
-                        showBottomFade ? "opacity-100" : "opacity-0",
-                    )}
-                />
             </div>
         </div>
     );

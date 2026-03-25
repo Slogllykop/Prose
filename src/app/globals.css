@@ -212,3 +212,103 @@
     content: counter(line);
     @apply mr-4 inline-block w-4 text-right text-muted-foreground;
 }
+
+/* ─── Print / PDF Download Styles ─── */
+@media print {
+    @page {
+        size: A4;
+        margin: 10mm;
+    }
+
+    html,
+    body {
+        font-size: 11pt;
+        line-height: 1.6;
+    }
+
+    /* Hide non-content elements */
+    .print-hidden,
+    [data-print-hidden] {
+        display: none;
+    }
+
+    /* Ensure the main container restricts its width safely for print */
+    #main-content {
+        max-width: 100%;
+        padding: 0;
+        margin: 0 auto;
+    }
+
+    /* Force single-column layout */
+    #main-content > .grid {
+        display: block;
+    }
+
+    /* Hide the TOC sidebar */
+    aside {
+        display: none;
+    }
+
+    /* Expand all collapsed code blocks - !important needed to override inline React styles */
+    [style*="max-height"] {
+        max-height: none;
+        overflow: visible;
+        mask-image: none;
+        -webkit-mask-image: none;
+    }
+
+    /* Hide code fade overlay & expand/collapse buttons */
+    .pointer-events-none[class*="bg-linear"] {
+        display: none;
+    }
+
+    /* Code blocks: clean print appearance and allow page breaks to prevent whitespace gaps */
+    .shiki,
+    pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        border: 1px solid var(--border);
+        background: transparent;
+        page-break-inside: auto;
+        break-inside: auto;
+        font-size: 9pt;
+    }
+
+    /* Ensure images don't break across pages */
+    img {
+        page-break-inside: avoid;
+        max-width: 100%;
+    }
+
+    /* Clean up links for print */
+    a {
+        text-decoration: underline;
+    }
+
+    /* Remove box shadows and borders that look bad in print */
+    * {
+        box-shadow: none;
+    }
+
+    /* Headings: avoid page break after */
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        page-break-after: avoid;
+    }
+
+    /* Clean article spacing and prevent overflow */
+    article {
+        width: 100%;
+        max-width: 100%;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+    }
+
+    .prose {
+        max-width: 100%;
+    }
+}

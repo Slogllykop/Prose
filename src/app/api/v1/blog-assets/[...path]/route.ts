@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { type NextRequest, NextResponse } from "next/server";
+import { resolveSlugToFolder } from "@/lib/blog";
 
 const BLOGS_DIR = path.join(process.cwd(), "src", "blogs");
 
@@ -18,7 +19,12 @@ export async function GET(
     props: { params: Promise<{ path: string[] }> },
 ) {
     const { path: segments } = await props.params;
-    const filePath = path.join(BLOGS_DIR, ...segments);
+
+    // The first segment is the blog slug; resolve it to the actual folder name
+    const [slugOrFolder, ...rest] = segments;
+    const folderName = resolveSlugToFolder(slugOrFolder) || slugOrFolder;
+
+    const filePath = path.join(BLOGS_DIR, folderName, ...rest);
 
     if (!fs.existsSync(filePath)) {
         return NextResponse.json({ error: "Not found" }, { status: 404 });

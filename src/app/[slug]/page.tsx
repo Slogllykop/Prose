@@ -12,8 +12,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BackToTop } from "@/components/back-to-top";
 import { TableOfContents } from "@/components/mdx-toc";
+import { ScrollProgress } from "@/components/scroll-progress";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { getAllBlogSlugs, getBlogBySlug } from "@/lib/blog";
+import {
+    getAllBlogSlugs,
+    getBlogBySlug,
+    resolveSlugToFolder,
+} from "@/lib/blog";
 import {
     AUTHOR_IMAGE,
     AUTHOR_NAME,
@@ -100,7 +105,12 @@ export default async function BlogPage(props: {
         );
     }
 
-    const { default: MdxContent } = await import(`@/blogs/${slug}/blog.mdx`);
+    const folderName = resolveSlugToFolder(slug);
+    if (!folderName) notFound();
+
+    const { default: MdxContent } = await import(
+        `@/blogs/${folderName}/blog.mdx`
+    );
 
     const uploadDate = new Date(blog.date).toLocaleDateString("en-US", {
         year: "numeric",
@@ -115,11 +125,11 @@ export default async function BlogPage(props: {
     });
 
     const heroPath = blog.heroImage
-        ? path.join(BLOGS_DIR, slug, blog.heroImage)
+        ? path.join(BLOGS_DIR, folderName, blog.heroImage)
         : null;
     const hasCustomHero = heroPath && fs.existsSync(heroPath);
     const heroToDisplay = hasCustomHero
-        ? `/api/v1/blog-assets/${slug}/${blog.heroImage}`
+        ? `/api/v1/blog-assets/${folderName}/${blog.heroImage}`
         : "/hero.png";
 
     const blogUrl = `${SITE_URL}/${slug}`;
@@ -159,6 +169,7 @@ export default async function BlogPage(props: {
 
     return (
         <main id="main-content" className="mx-auto w-full max-w-7xl px-4 py-12">
+            <ScrollProgress />
             <script
                 type="application/ld+json"
                 suppressHydrationWarning
@@ -167,7 +178,7 @@ export default async function BlogPage(props: {
                     __html: JSON.stringify(jsonLd),
                 }}
             />
-            <header className="mx-auto mb-12 flex max-w-2xl items-center justify-between">
+            <header className="print-hidden mx-auto mb-12 flex max-w-2xl items-center justify-between">
                 <Link
                     href="/"
                     className="focus-ring -ml-2 inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-muted-foreground text-sm transition-colors hover:text-foreground"
@@ -255,7 +266,7 @@ export default async function BlogPage(props: {
                 </aside>
             </div>
 
-            <footer className="mx-auto mt-16 max-w-2xl">
+            <footer className="print-hidden mx-auto mt-16 max-w-2xl">
                 <div className="flex items-center justify-between border-border border-t py-8 text-muted-foreground text-sm">
                     <p>
                         &copy; {new Date().getFullYear()} {AUTHOR_NAME}

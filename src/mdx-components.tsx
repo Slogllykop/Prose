@@ -5,6 +5,9 @@ import { CollapsibleCodeBlock } from "@/components/collapsible-code-block";
 export function useMDXComponents(components: MDXComponents): MDXComponents {
     return {
         ...components,
+        a: (props) => (
+            <a target="_blank" rel="noopener noreferrer" {...props} />
+        ),
         h1: (props) => (
             <h1
                 className="mt-2 scroll-m-20 font-bold text-4xl tracking-tight"

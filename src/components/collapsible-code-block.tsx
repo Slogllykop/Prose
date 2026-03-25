@@ -65,6 +65,10 @@ export function CollapsibleCodeBlock({
                                 ? `${collapsedHeight}px`
                                 : `${MAXIMUM_PERMITTED_LINES * 1.25}rem` // Fallback: ~X lines * 1.25rem line-height
                             : undefined,
+                    maskImage:
+                        isCollapsible && !isExpanded
+                            ? "linear-gradient(to bottom, black 0%, black calc(100% - 3rem), transparent 100%)"
+                            : "none",
                 }}
             >
                 <pre
@@ -74,10 +78,7 @@ export function CollapsibleCodeBlock({
                 >
                     {children}
                 </pre>
-                <CopyButton className="group-focus-within:block" />
-                {isCollapsible && !isExpanded && (
-                    <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-full bg-linear-to-t from-background to-transparent" />
-                )}
+                <CopyButton className="print-hidden group-focus-within:block" />
             </div>
 
             {isCollapsible && (
@@ -86,7 +87,7 @@ export function CollapsibleCodeBlock({
                         type="button"
                         onClick={() => setIsExpanded(!isExpanded)}
                         aria-expanded={isExpanded}
-                        className="focus-ring rounded-md bg-muted px-4 py-2 font-medium text-muted-foreground text-sm transition-colors hover:bg-muted/80 hover:text-foreground"
+                        className="print-hidden focus-ring rounded-md bg-muted px-4 py-2 font-medium text-muted-foreground text-sm transition-colors hover:bg-muted/80 hover:text-foreground"
                     >
                         {isExpanded ? "Collapse code" : "Expand code"}
                     </button>
