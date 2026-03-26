@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -14,6 +14,9 @@ import {
 import { cn } from "@/lib/utils";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+export const viewport: Viewport = {
+    themeColor: "#ffde42",
+};
 
 export const metadata: Metadata = {
     metadataBase: new URL(SITE_URL),
@@ -23,6 +26,10 @@ export const metadata: Metadata = {
     },
     description: SITE_DESCRIPTION,
     keywords: SEO_KEYWORDS,
+    applicationName: SITE_TITLE,
+    appleWebApp: {
+        title: SITE_TITLE,
+    },
     authors: [{ name: AUTHOR_NAME, url: AUTHOR_URL }],
     creator: AUTHOR_NAME,
     publisher: AUTHOR_NAME,
@@ -42,6 +49,7 @@ export const metadata: Metadata = {
         title: `${SITE_TITLE} | ${AUTHOR_NAME}`,
         description: SITE_DESCRIPTION,
         creator: `@${AUTHOR_NAME.replace(/\s+/g, "")}`,
+        site: `@${SITE_TITLE}`,
     },
     robots: {
         index: true,

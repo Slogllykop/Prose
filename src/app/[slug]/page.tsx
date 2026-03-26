@@ -78,6 +78,7 @@ export async function generateMetadata(props: {
             card: "summary_large_image",
             title: `${blog.title} | ${SITE_TITLE}`,
             description: blog.description || `${blog.title} by ${AUTHOR_NAME}`,
+            site: `@${SITE_TITLE}`,
         },
         ...(isExample && {
             robots: { index: false, follow: false },
