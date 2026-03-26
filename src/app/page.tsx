@@ -31,14 +31,14 @@ export const metadata: Metadata = {
         canonical: SITE_URL,
     },
     openGraph: {
-        title: `${AUTHOR_NAME} - Blog | ${SITE_TITLE}`,
+        title: `${AUTHOR_NAME} - Blogs | ${SITE_TITLE}`,
         description: SITE_DESCRIPTION,
         url: SITE_URL,
         type: "website",
     },
     twitter: {
         card: "summary_large_image",
-        title: `${AUTHOR_NAME} - Blog | ${SITE_TITLE}`,
+        title: `${AUTHOR_NAME} - Blogs | ${SITE_TITLE}`,
         description: SITE_DESCRIPTION,
     },
 };
