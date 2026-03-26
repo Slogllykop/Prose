@@ -21,8 +21,8 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
     metadataBase: new URL(SITE_URL),
     title: {
-        default: `${SITE_TITLE} | ${AUTHOR_NAME}`,
-        template: `%s | ${SITE_TITLE}`,
+        default: `${AUTHOR_NAME} - ${AUTHOR_TITLE}`,
+        template: "%s",
     },
     description: SITE_DESCRIPTION,
     keywords: SEO_KEYWORDS,
@@ -41,12 +41,11 @@ export const metadata: Metadata = {
         locale: "en_US",
         url: SITE_URL,
         siteName: SITE_TITLE,
-        title: `${SITE_TITLE} | ${AUTHOR_NAME} - ${AUTHOR_TITLE}`,
+        title: `${AUTHOR_NAME} - ${AUTHOR_TITLE}`,
         description: SITE_DESCRIPTION,
     },
     twitter: {
         card: "summary_large_image",
-        title: `${SITE_TITLE} | ${AUTHOR_NAME}`,
         description: SITE_DESCRIPTION,
         creator: `@${AUTHOR_NAME.replace(/\s+/g, "")}`,
         site: `@${SITE_TITLE}`,

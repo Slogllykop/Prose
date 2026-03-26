@@ -65,7 +65,7 @@ export async function generateMetadata(props: {
             canonical: blogUrl,
         },
         openGraph: {
-            title: `${blog.title} | ${SITE_TITLE}`,
+            title: blog.title,
             description: blog.description || `${blog.title} by ${AUTHOR_NAME}`,
             url: blogUrl,
             type: "article",
@@ -76,7 +76,7 @@ export async function generateMetadata(props: {
         },
         twitter: {
             card: "summary_large_image",
-            title: `${blog.title} | ${SITE_TITLE}`,
+            title: blog.title,
             description: blog.description || `${blog.title} by ${AUTHOR_NAME}`,
             site: `@${SITE_TITLE}`,
         },
