@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { NextResponse } from "next/server";
 import { getAllBlogs } from "@/lib/blog";
+import { SITE_URL } from "@/lib/constants";
 
 let cachedResponse: Array<{
     title: string;
@@ -9,6 +10,7 @@ let cachedResponse: Array<{
     mins_required: number;
     date_uploaded: string;
     date_updated: string;
+    url: string;
 }> | null = null;
 let lastKnownMaxMtime = 0;
 
@@ -79,6 +81,7 @@ export async function GET() {
                 mins_required: blog.readingTime,
                 date_uploaded: blog.date,
                 date_updated: blog.updated,
+                url: `${SITE_URL}/${blog.slug}`,
             }))
             .sort(
                 (a, b) =>
