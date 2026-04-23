@@ -1,0 +1,22 @@
+## Ace the Interview: "What Is Hoisting?"
+
+If an interviewer asks you to explain hoisting, here is an answer that will set you apart from every other candidate who says "declarations get moved to the top":
+
+> **"Hoisting is a community-coined term. It does not appear as a defined mechanism in the ECMAScript specification. What actually happens is that JavaScript uses a two-phase execution model. In the first phase, the engine creates an Execution Context and scans the code for declarations. It registers each one in the scope's Environment Record, which is like an internal dictionary. The key difference is how each declaration type is treated during this phase: `var` bindings are created and initialized to `undefined`, function declarations are created and initialized with the full function object, and `let`/`const` bindings are created but left uninitialized, which is what produces the Temporal Dead Zone. In the second phase, the engine executes the code line by line. No code is physically moved. What we call 'hoisting' is simply the result of bindings being registered before execution begins."**
+
+This answer works because it shows you understand three things most candidates do not:
+
+1. **The mechanism, not just the symptom.** You are not reciting a rule; you are explaining *why* the rule exists.
+2. **The differences between declaration types.** You are not lumping `var`, `let`, `const`, and `function` together. You know each one gets different treatment.
+3. **The correct terminology.** Saying "Environment Record" and "Execution Context" instead of vague hand-waving about "the compiler" signals that you have actually read (or at least studied) the specification.
+
+### Your Mental Model Cheat Sheet
+
+When you are debugging or explaining code on a whiteboard, use this mental model instead of the "moving to the top" myth:
+
+- **Is this a `var`?** → It is `undefined` until its line runs.
+- **Is this `let` or `const`?** → It exists but is in the TDZ. Touch it and you will get a ReferenceError.
+- **Is this a function declaration?** → It is fully available from line 1.
+- **Is this a function expression or arrow function?** → Follow the variable's rules.
+
+Once you understand that "hoisting" is a community-invented metaphor for a symptom, not a cause, the concept stops being a quirky interview question and becomes a predictable, logical consequence of how the language is designed. No code moves anywhere; it is all just the result of JavaScript's two-phase execution model.

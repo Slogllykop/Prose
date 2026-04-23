@@ -1,0 +1,82 @@
+## var: Created and Initialized to undefined
+
+The ECMAScript specification (Section 14.3.2) describes `var` declarations as using **VarDeclaredNames** and **VarScopedDeclarations**. During the creation phase, the spec calls `CreateMutableBinding` for the variable name and then immediately calls `InitializeBinding` with the value `undefined`.
+
+Two things to note: `var` is function-scoped (or globally-scoped if declared at the top level), and its binding is initialized to `undefined` the moment the Environment Record is created.
+
+```javascript
+console.log(score);  // undefined
+var score = 42;
+console.log(score);  // 42
+```
+
+Here is what actually happens in each phase:
+
+#### Phase 1: Creation
+- **Scan**: The engine finds `var score`.
+- **Create**: Calls `CreateMutableBinding("score")` on the Environment Record.
+- **Initialize**: Calls `InitializeBinding("score", undefined)`.
+
+#### Phase 2: Execution
+- **Line 1**: `console.log(score)` → engine looks up `score` → finds `undefined` → **Prints: `undefined`**
+- **Line 2**: `var score = 42` → the `var` part is a no-op; assignment happens → `score` is now `42`.
+- **Line 3**: `console.log(score)` → engine looks up `score` → finds `42` → **Prints: `42`**
+
+Nothing moved. The declaration was never relocated to the top of the function. The engine simply created the binding and initialized it to `undefined` before execution began.
+
+### The Global Object Pollution
+
+One of the quirkier side effects of `var` (and function declarations) is how they interact with the global object: `window` in browsers or `global` in Node.js. When you declare a `var` at the top level, the engine doesn't just create a binding; it actually attaches that variable as a property to the global object.
+
+```javascript
+var theme = "dark";
+console.log(window.theme); // "dark"
+```
+
+Contrast this with `let` and `const`. While they are globally accessible, they do NOT pollute the global object.
+
+```javascript
+let layout = "grid";
+console.log(window.layout); // undefined
+```
+
+This happens because the Global Environment Record is actually composed of two parts: an **Object Environment Record** (where `var` and `function` declarations live, tied to the global object) and a **Declarative Environment Record** (where `let` and `const` live, safely tucked away from the global object).
+
+Here is a more involved example showing `var` is function-scoped, not block-scoped:
+
+```javascript
+function demo() {
+  console.log(x);  // undefined
+  if (true) {
+    var x = 10;
+  }
+  console.log(x);  // 10
+}
+demo();
+```
+
+The `var x` inside the `if` block does not stay inside the block. The spec attaches `var` bindings to the nearest function (or global) Environment Record, not the block. During the creation phase of `demo()`, the engine finds `var x` and creates the binding in `demo`'s function-level Environment Record, initialized to `undefined`.
+
+`var` also ignores block boundaries in loops. This catches developers off-guard constantly:
+
+```javascript
+function processItems() {
+  for (var i = 0; i < 3; i++) {
+    // i is scoped to processItems(), NOT this block
+  }
+  console.log(i); // 3: i leaked out of the loop!
+}
+
+processItems();
+// Output: 3
+```
+
+Another classic `var` trap: duplicate declarations are silently allowed:
+
+```javascript
+var userName = "Alice";
+var userName = "Bob"; // No error: same variable, just re-assigned
+
+console.log(userName);
+// Output: Bob
+```

@@ -1,0 +1,32 @@
+## Putting It Together: The Classic var-in-a-Loop Problem
+
+This is one of the most famous JavaScript gotchas, and it ties directly back to everything we have discussed:
+
+```javascript
+// The infamous loop + closure problem
+for (var i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), 100);
+}
+
+// Output after 100ms:
+// 3
+// 3
+// 3
+```
+
+Why? `var i` is function-scoped. There is only *one* `i` across all loop iterations. By the time the callbacks run, the loop is done and `i` is `3`.
+
+The fix is `let`, which creates a new block-scoped binding per iteration:
+
+```javascript
+for (let i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), 100);
+}
+
+// Output after 100ms:
+// 0
+// 1
+// 2
+```
+
+This is not a special `let` feature. It is a direct consequence of block scoping. Each iteration of the `for` loop creates a new block, and `let` creates a new binding in each block's Environment Record. Each callback closes over its own `i`.

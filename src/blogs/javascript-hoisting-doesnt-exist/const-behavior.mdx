@@ -1,0 +1,44 @@
+## const: Block-Scoped, Must Be Initialized
+
+`const` behaves like `let` in Phase 1 (registered as `uninitialized`, TDZ applies), with two additional constraints:
+
+1. **Must be initialized at declaration.** You cannot write `const x;`
+2. **Cannot be reassigned** after initialization
+
+```javascript
+// This throws at parse time, not even a ReferenceError
+const API_URL; // SyntaxError: Missing initializer in const declaration
+```
+
+```javascript
+console.log(PI);  // ReferenceError: Cannot access 'PI' before initialization
+const PI = 3.14159;
+```
+
+#### Phase 1: Creation
+- **Scan**: The engine finds `const PI`.
+- **Create**: Calls `CreateImmutableBinding("PI")`.
+- **Initialize**: **None.** The binding is left uninitialized.
+
+#### Phase 2: Execution
+- **Line 1**: `console.log(PI)` → engine finds the binding but it is uninitialized → **Throws: `ReferenceError`**
+
+The only difference between `let` and `const` surfaces after initialization:
+
+```javascript
+let count = 0;
+count = 1;   // Fine. let bindings are mutable.
+
+const max = 100;
+max = 200;   // TypeError: Assignment to constant variable.
+```
+
+Important distinction: `const` prevents **reassignment**, not **mutation**. Objects and arrays declared with `const` can still be modified internally:
+
+```javascript
+const user = { name: "Alice", age: 30 };
+user.age = 31; // This works. We are mutating, not reassigning.
+console.log(user); // { name: "Alice", age: 31 }
+
+user = { name: "Bob" }; // TypeError: Assignment to constant variable.
+```

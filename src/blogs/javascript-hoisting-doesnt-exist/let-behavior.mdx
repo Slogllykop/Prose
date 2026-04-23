@@ -1,0 +1,60 @@
+## let: Created but NOT Initialized
+
+Section 14.3.1 of the ECMAScript specification handles `let` and `const` declarations differently from `var`. These use **LexicallyDeclaredNames** and **LexicallyScopedDeclarations**. During the creation phase, the spec calls `CreateMutableBinding` for `let` (or `CreateImmutableBinding` for `const`), but critically, it does NOT call `InitializeBinding`.
+
+The binding exists in the Environment Record, but it is in an **uninitialized** state. Any attempt to access an uninitialized binding triggers a `ReferenceError`. The spec's note in Section 14.3.2 puts it plainly:
+
+> *"The variables are created when their containing Environment Record is instantiated but may not be accessed in any way until the variable's LexicalBinding is evaluated."*
+
+This zone between creation and initialization is what the community calls the **Temporal Dead Zone** (TDZ). It is not a special mechanism. It is just what happens when a binding exists but has not been initialized yet.
+
+```javascript
+console.log(name);  // ReferenceError: Cannot access 'name' before initialization
+let name = "JavaScript";
+console.log(name);  // never reached
+```
+
+Block scoping works as expected:
+
+```javascript
+let outerVal = "outer";
+
+if (true) {
+  let outerVal = "inner"; // completely different binding
+  console.log(outerVal);  // "inner"
+}
+
+console.log(outerVal); // "outer"
+
+// Output:
+// inner
+// outer
+```
+
+`let` cannot be redeclared within the same scope:
+
+```javascript
+let product = "laptop";
+let product = "phone"; // SyntaxError: Identifier 'product' has already been declared
+```
+
+What happens in each phase:
+
+#### Phase 1: Creation
+- **Scan**: The engine finds `let name`.
+- **Create**: Calls `CreateMutableBinding("name")` on the block's Environment Record.
+- **Initialize**: **None.** The binding is left uninitialized.
+
+#### Phase 2: Execution
+- **Line 1**: `console.log(name)` → engine finds the binding but it is uninitialized → **Throws: `ReferenceError`**
+- **Line 2**: Never reached.
+
+Compare this error message carefully. It says "Cannot access 'name' before initialization," not "name is not defined." The engine knows the variable exists (it was created in Phase 1), but it has not been initialized yet.
+
+Now compare with a truly non-existent variable:
+
+```javascript
+console.log(ghost);  // ReferenceError: ghost is not defined
+```
+
+The error message is different because `ghost` was never created in any Environment Record. The engine has no record of it at all.

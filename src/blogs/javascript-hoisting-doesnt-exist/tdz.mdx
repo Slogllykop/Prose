@@ -1,0 +1,50 @@
+## The TDZ Is Not Magic, It Is Just "Uninitialized"
+
+The Temporal Dead Zone is the period between when a binding is created (Phase 1) and when it is initialized (Phase 2 reaching the declaration). Here is a visual timeline:
+
+```javascript
+// --- TDZ for `x` starts here (binding created, not initialized) ---
+
+console.log(x);  // ReferenceError
+
+// --- TDZ for `x` continues ---
+
+let x = 42;      // InitializeBinding("x", 42) → TDZ ends
+
+// --- x is now accessible ---
+
+console.log(x);  // 42
+```
+
+The TDZ is **temporal** (time-based), not **spatial** (position-based). Here is proof that it is about *when* code runs, not where it is written:
+
+```javascript
+{
+  // TDZ for `score` starts here
+  const getScore = () => score; // declaring a function that references score is fine
+
+  let score = 42; // TDZ ends here
+
+  console.log(getScore()); // 42: works because score is initialized by the time this runs
+}
+
+// Output:
+// 42
+```
+
+The function captures `score`, but since the function is *called after* `score` is initialized, no TDZ error occurs. The TDZ ended the moment execution crossed `let score = 42`.
+
+Here is a subtler TDZ example that trips up experienced developers:
+
+```javascript
+let a = 1;
+
+function check() {
+  console.log(a);  // ReferenceError, not 1
+  let a = 2;
+}
+
+check();
+```
+
+You might expect `console.log(a)` to print `1` (the outer `a`), but it does not. When `check()` runs, Phase 1 scans the function body and finds `let a`. It creates a binding for `a` in `check`'s block Environment Record. This shadows the outer `a`. When Phase 2 tries to execute `console.log(a)`, it finds the local `a` (not the outer one), but the local `a` is uninitialized. ReferenceError.

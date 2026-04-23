@@ -1,0 +1,50 @@
+## Function Expressions: They Follow Their Variable's Rules
+
+A function expression is a function assigned to a variable. The "hoisting" behavior depends entirely on which keyword (`var`, `let`, or `const`) you use.
+
+### Function Expression with var
+
+```javascript
+console.log(typeof sayHi);  // "undefined"
+sayHi();                     // TypeError: sayHi is not a function
+
+var sayHi = function() {
+  console.log("Hi!");
+};
+
+sayHi();                     // "Hi!"
+```
+
+#### Phase 1: Creation
+- **Scan**: The engine finds `var sayHi`.
+- **Create**: Calls `CreateMutableBinding("sayHi")`.
+- **Initialize**: Calls `InitializeBinding("sayHi", undefined)`.
+- **Note**: The function expression itself is **not** evaluated yet.
+
+#### Phase 2: Execution
+- **Line 1**: `typeof sayHi` → engine finds `undefined` → **Returns: "undefined"**
+- **Line 2**: `sayHi()` → engine tries to call `undefined` → **Throws: `TypeError`**
+- **Line 4**: `sayHi = function...` → Assignment happens; `sayHi` now holds the function.
+- **Line 8**: `sayHi()` → engine finds the function → **Prints: "Hi!"**
+
+The variable `sayHi` is created and initialized to `undefined` (because `var`), but the function is not assigned until the engine reaches line 4 during execution.
+
+### Function Expression with let or const
+
+```javascript
+sayHello();  // ReferenceError: Cannot access 'sayHello' before initialization
+
+const sayHello = function() {
+  console.log("Hello!");
+};
+```
+
+#### Phase 1: Creation
+- **Scan**: The engine finds `const sayHello`.
+- **Create**: Calls `CreateImmutableBinding("sayHello")`.
+- **Initialize**: **None.** Binding is uninitialized (TDZ).
+
+#### Phase 2: Execution
+- **Line 1**: `sayHello()` → engine finds uninitialized binding → **Throws: `ReferenceError`**
+
+Since `const` (and `let`) do not initialize the binding during creation, you cannot access the variable at all before the declaration line.

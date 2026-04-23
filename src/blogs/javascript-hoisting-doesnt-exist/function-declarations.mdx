@@ -1,0 +1,44 @@
+## Function Declarations: Created, Initialized, AND Assigned
+
+Function declarations get the most aggressive treatment during the creation phase. The spec (Section 10.2.11, FunctionDeclarationInstantiation) does all three steps at once: it creates the binding, initializes it, and assigns the actual function object to it.
+
+This is why you can call a function declaration before the line where it appears:
+
+```javascript
+greet("World");  // "Hello, World!"
+
+function greet(name) {
+  console.log("Hello, " + name + "!");
+}
+```
+
+Phase breakdown:
+
+#### Phase 1: Creation
+- **Scan**: The engine finds `function greet(name) { ... }`.
+- **Create**: Calls `CreateMutableBinding("greet")`.
+- **Initialize**: Calls `InitializeBinding("greet", <function object>)`.
+- **Ready**: `greet` is fully usable before any code runs.
+
+#### Phase 2: Execution
+- **Line 1**: `greet("World")` → engine finds the function object → **Prints: "Hello, World!"**
+- **Line 3**: `function greet(...)` → No-op (already processed).
+
+This is the only declaration type where the full value (not just `undefined`) is available from the very beginning of the scope. The spec does this because function declarations are treated as part of the scope's structure, not as sequential statements.
+
+Here is a more practical example showing order does not matter:
+
+```javascript
+console.log(add(2, 3));      // 5
+console.log(multiply(4, 5)); // 20
+
+function add(a, b) {
+  return a + b;
+}
+
+function multiply(a, b) {
+  return a * b;
+}
+```
+
+Both functions work because both were fully initialized during Phase 1.

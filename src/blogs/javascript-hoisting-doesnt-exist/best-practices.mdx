@@ -1,0 +1,78 @@
+## Best Practices for Every Declaration Type
+
+### var
+
+Avoid it in modern JavaScript. There is no case where `var` does something useful that `let` or `const` cannot do better. Its function scoping and implicit `undefined` initialization create opportunities for silent bugs. If you are maintaining legacy code that uses `var`, understand it but do not add new `var` declarations.
+
+### let
+
+Use `let` for values that will be reassigned. Declare it as close to first usage as possible, and always assign a value on the same line when you can.
+
+```javascript
+// Prefer this
+let total = 0;
+for (let i = 0; i < items.length; i++) {
+  total += items[i].price;
+}
+
+// Not this
+let total;
+let i;
+// ... 20 lines later ...
+total = 0;
+```
+
+### const
+
+Use `const` by default. If you do not need to reassign the variable, use `const`. It communicates intent (this binding will not change) and triggers an error if someone accidentally reassigns it.
+
+```javascript
+const API_URL = "https://api.example.com";
+const users = [];         // The array reference is constant, but you can still push/pop
+users.push({ name: "Alice" }); // This works fine
+const config = Object.freeze({ debug: false }); // Use freeze if you need deep immutability
+```
+
+### Function Declarations
+
+Use function declarations when you want the function to be available throughout the entire scope. They work well for top-level utility functions in a module where you want to organize helper functions at the bottom and main logic at the top.
+
+```javascript
+// Main logic at the top, readable like a story
+export function processOrder(order) {
+  const validated = validateOrder(order);
+  const total = calculateTotal(validated);
+  return formatReceipt(validated, total);
+}
+
+// Helper functions below
+function validateOrder(order) { /* ... */ }
+function calculateTotal(order) { /* ... */ }
+function formatReceipt(order, total) { /* ... */ }
+```
+
+### Function Expressions and Arrow Functions
+
+Use `const` with arrow functions for callbacks, inline logic, and when you want to prevent the function from being reassigned or used before definition.
+
+```javascript
+// Callbacks
+const handleClick = (event) => {
+  event.preventDefault();
+  // ...
+};
+
+// Array methods
+const doubled = numbers.map((n) => n * 2);
+
+// Module-private functions that should not be used before defined
+const parseConfig = (raw) => {
+  // ...
+};
+```
+
+### The Golden Rule
+
+Declare every binding with `const`. Change to `let` only when you need reassignment. Do not use `var`. For standalone named functions, use function declarations. For everything else, use `const` with arrow functions.
+
+This approach means you will never run into "hoisting" surprises, because `const` and `let` will throw an error if you try to use them before their declaration, and function declarations are deliberately designed to be available everywhere in their scope.

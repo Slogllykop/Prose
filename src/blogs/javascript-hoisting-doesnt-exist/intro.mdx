@@ -1,0 +1,7 @@
+Search the entire [ECMAScript specification](https://tc39.es/ecma262/) for the word "hoisting." You will find exactly one result, tucked inside an informational note in Section 14.3.2 on `let` and `const` declarations:
+
+> *"The variables are created when their containing Environment Record is instantiated but may not be accessed in any way until the variable's LexicalBinding is evaluated."*
+
+That is it. The spec never defines "hoisting" as a mechanism. It never describes "moving declarations to the top." It does not have a hoisting algorithm. The term was invented by the JavaScript community as a shorthand to describe a behavior that is actually a side effect of something more fundamental: JavaScript's two-phase execution model.
+
+Understanding the real mechanism changes how you think about `var`, `let`, `const`, function declarations, function expressions, and arrow functions. It also makes the so-called "Temporal Dead Zone" go from mysterious to obvious.

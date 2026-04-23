@@ -1,0 +1,28 @@
+## Arrow Functions: Same Rules as Function Expressions
+
+Arrow functions are syntactic sugar. Under the hood, they behave exactly like function expressions for purposes of hoisting. Whatever keyword you use to declare the variable (`var`, `let`, `const`) determines the Phase 1 behavior.
+
+### Arrow Function with var
+
+```javascript
+console.log(double);  // undefined
+double(5);            // TypeError: double is not a function
+
+var double = (n) => n * 2;
+
+console.log(double(5));  // 10
+```
+
+Same as a `var` function expression: binding exists as `undefined`, function assigned later.
+
+### Arrow Function with const
+
+```javascript
+triple(3);  // ReferenceError: Cannot access 'triple' before initialization
+
+const triple = (n) => n * 3;
+```
+
+Same as a `const` function expression: binding exists but is uninitialized (TDZ).
+
+Arrow functions have no `this` binding of their own, no `arguments` object, and cannot be used as constructors. But none of those differences affect their hoisting behavior.

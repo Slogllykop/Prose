@@ -1,0 +1,15 @@
+## Translating the Spec: A Mini Glossary
+
+Before we dive into the specific behaviors, let's translate the "spec-speak" into developer terms:
+
+- **Binding**: This is just a fancy word for a variable or function name. When you "bind" a name to a value, you are essentially saying "from now on, this name refers to this piece of data."
+- **Environment Record**: The internal dictionary where all your bindings live for a specific scope.
+- **VarDeclaredNames**: A list the engine creates during Phase 1 containing every variable name it found using the `var` keyword.
+- **VarScopedDeclarations**: The actual statements in your code that declared those `var` names.
+- **LexicallyDeclaredNames**: Similar to the above, but for names found using `let` or `const`.
+- **LexicallyScopedDeclarations**: The actual statements that declared those `let` or `const` names.
+- **CreateMutableBinding(name)**: The engine's command to "reserve a spot in the dictionary for this name, and make sure we can change its value later."
+- **InitializeBinding(name, value)**: The engine's command to "give this newly reserved name its starting value."
+- **LexicalBinding**: The spec's way of describing the actual connection between a name (like `let x`) and its initialization.
+
+Now, let's look at how these are applied.

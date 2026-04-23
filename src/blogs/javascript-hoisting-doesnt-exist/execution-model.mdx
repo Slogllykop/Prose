@@ -1,0 +1,33 @@
+## JavaScript Runs Your Code Twice (Sort Of)
+
+Every time JavaScript executes a block of code, whether it is a script, a function body, or a block statement, it goes through two distinct phases. The ECMAScript specification describes these in Sections 9.1 (Environment Records) and 9.4 (Execution Contexts).
+
+**Phase 1: Creation (Parsing/Compilation)**
+
+The engine reads through the entire code without executing a single line. During this phase, it:
+
+1. Creates a new **Execution Context** (think of it as a workspace for that code block)
+2. Sets up the **Environment Record**, which is the spec's term for the place where variable bindings live. Think of it as a plain JavaScript object where the keys are your variable names and the values are their current state. It is like the engine's internal dictionary.
+3. Scans for all declarations (`var`, `let`, `const`, `function`, `class`) and creates bindings for them in the Environment Record.
+
+During this phase, the Environment Record for a block of code might conceptually look like this:
+
+```javascript
+// Conceptual Environment Record at the end of Phase 1
+{
+  "score": undefined,          // var: created and initialized to undefined
+  "name": "<uninitialized>",   // let: created but left uninitialized (TDZ)
+  "PI": "<uninitialized>",     // const: created but left uninitialized (TDZ)
+  "greet": "<function object>" // function: created, initialized, and assigned
+}
+```
+
+The critical detail is *how* each binding gets created. Different declaration types get different treatment in this phase.
+
+**Phase 2: Execution**
+
+The engine goes back to the first line and starts running code top-to-bottom, one statement at a time. Assignments happen here. Function calls happen here. Everything you think of as "running code" happens here.
+
+"Hoisting" is what happens when the creation phase makes a binding available before the execution phase reaches the line where you wrote the declaration.
+
+Let me show you exactly how this plays out for every declaration type.

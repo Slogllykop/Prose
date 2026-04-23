@@ -1,0 +1,25 @@
+## Why the Spec Designed It This Way
+
+`var` was the original variable keyword in JavaScript (1995). Its behavior of initializing to `undefined` was a pragmatic choice for a language that needed to be simple and forgiving. No errors, just `undefined`.
+
+When TC39 designed `let` and `const` for ES2015, they had the benefit of two decades of experience with `var`'s footguns. The TDZ was introduced primarily because of `const`. A `const` variable that could be read before its initializer runs would sometimes return `undefined`, which directly contradicts `const`'s guarantee of having exactly one value. TDZ prevents that inconsistency, and `let` was given the same treatment for consistency.
+
+Here is the difference in practice:
+
+```javascript
+// With var: silent bug
+function buggy() {
+  console.log(count);  // undefined (no error, but this is almost always a mistake)
+  // ... 50 lines of code ...
+  var count = items.length;
+}
+
+// With let: loud error
+function safe() {
+  console.log(count);  // ReferenceError (you know immediately something is wrong)
+  // ... 50 lines of code ...
+  let count = items.length;
+}
+```
+
+The trade-off was: `var` is forgiving but hides bugs. `let`/`const` are strict but surface mistakes immediately.
