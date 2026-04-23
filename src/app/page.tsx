@@ -98,11 +98,7 @@ export default function Home() {
                 }}
             />
             <header className="mb-12 flex items-center justify-between">
-                <Link
-                    href={AUTHOR_URL}
-                    target="_blank"
-                    className="focus-ring flex items-center gap-4 rounded-lg transition-opacity hover:opacity-80"
-                >
+                <div className="flex items-center gap-4">
                     <div className="relative size-12 overflow-hidden rounded-full border bg-muted">
                         <Image
                             src={AUTHOR_IMAGE}
@@ -115,13 +111,20 @@ export default function Home() {
                     </div>
                     <div>
                         <h1 className="font-semibold text-lg tracking-tight">
-                            {AUTHOR_NAME}
+                            <Link
+                                href={AUTHOR_URL}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="focus-ring rounded-sm transition-opacity hover:opacity-80"
+                            >
+                                {AUTHOR_NAME}
+                            </Link>
                         </h1>
                         <p className="text-muted-foreground text-sm">
                             Building, designing, and sharing the journey.
                         </p>
                     </div>
-                </Link>
+                </div>
                 <ThemeToggle />
             </header>
 

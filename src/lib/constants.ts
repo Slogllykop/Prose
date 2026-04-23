@@ -5,6 +5,8 @@ export const SITE_DESCRIPTION =
 export const SITE_URL = "https://blog.isdevs.cv";
 
 export const AUTHOR_NAME = "Indraneel Sinare";
+export const AUTHOR_DESCRIPTION =
+    "Results-driven Frontend Engineer with more than 1 year of experience in developing high-quality web applications utilizing JavaScript/TypeScript and frameworks such as React and NextJS.";
 export const AUTHOR_URL = "https://isdevs.cv";
 export const AUTHOR_IMAGE = "/profile.png";
 export const AUTHOR_TITLE = "Software Engineer, Designer, and Writer";
