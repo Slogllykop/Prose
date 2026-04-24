@@ -19,14 +19,12 @@ console.log(x);  // 42
 The TDZ is **temporal** (time-based), not **spatial** (position-based). Here is proof that it is about *when* code runs, not where it is written:
 
 ```javascript
-{
   // TDZ for `score` starts here
   const getScore = () => score; // declaring a function that references score is fine
 
   let score = 42; // TDZ ends here
 
   console.log(getScore()); // 42: works because score is initialized by the time this runs
-}
 
 // Output:
 // 42
